@@ -67,9 +67,9 @@
 		"script": {
 			"items": [
 				{
-					"name": "main.ts",
-					"type": "application/typescript",
-					"sid": 429113745014229,
+					"name": "main.js",
+					"type": "application/javascript",
+					"sid": 798583919156089,
 					"script-info": {
 						"purpose": "main"
 					}

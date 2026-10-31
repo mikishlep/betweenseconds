@@ -1,0 +1,27 @@
+{
+  "name": "betweenseconds",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild src/main.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=scripts/main.js",
+    "dev": "esbuild src/main.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=scripts/main.js --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikishlep/betweenseconds.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mikishlep/betweenseconds/issues"
+  },
+  "homepage": "https://github.com/mikishlep/betweenseconds#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}
