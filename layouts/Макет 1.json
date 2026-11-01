@@ -270,7 +270,7 @@
 			"subLayers": [],
 			"instances": [
 				{
-					"type": "howToControl",
+					"type": "HowToControl",
 					"properties": {
 						"tag": "div",
 						"content": "\n<div style=\"\n  padding: 12px 16px;\n  background: rgba(0, 0, 0, 0.65);\n  color: white;\n  font: 13px/1.7 Arial, sans-serif;\n  border-radius: 4px;\n\">\n  <strong>BETWEEN SECONDS</strong>\n\n  <div style=\"margin-top: 8px; color: #ccc;\">\n    WASD - движение<br>\n    SPACE - рывок\n  </div>\n\n  <div style=\"margin-top: 8px; font-size: 12px;\">\n    Время движется при движении (основная идея проекта)\n  </div>\n</div>",
