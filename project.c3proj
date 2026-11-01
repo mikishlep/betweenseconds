@@ -36,6 +36,13 @@
 		},
 		{
 			"type": "behavior",
+			"id": "scrollto",
+			"name": "Следить за",
+			"author": "Scirra",
+			"bundled": false
+		},
+		{
+			"type": "behavior",
 			"id": "solid",
 			"name": "Твёрдый",
 			"author": "Scirra",

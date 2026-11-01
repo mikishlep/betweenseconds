@@ -31,6 +31,11 @@
 								"default-controls": false,
 								"enabled": true
 							}
+						},
+						"СледитьЗа": {
+							"properties": {
+								"enabled": true
+							}
 						}
 					},
 					"materialSurfaceType": "smooth",
