@@ -29,6 +29,13 @@
 		},
 		{
 			"type": "behavior",
+			"id": "Sin",
+			"name": "Синусоида",
+			"author": "Scirra",
+			"bundled": false
+		},
+		{
+			"type": "behavior",
 			"id": "solid",
 			"name": "Твёрдый",
 			"author": "Scirra",
@@ -40,7 +47,8 @@
 		"items": [
 			"Player",
 			"Keyboard",
-			"Wall"
+			"Wall",
+			"TestEnemy"
 		],
 		"subfolders": []
 	},

@@ -37,9 +37,9 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 409,
-						"y": 252,
-						"width": 24,
+						"x": 358,
+						"y": 229,
+						"width": 31,
 						"height": 32,
 						"originX": 0.5,
 						"originY": 0.5,
@@ -177,6 +177,55 @@
 						],
 						"z": 0,
 						"angle": 1.5707963267948966
+					}
+				},
+				{
+					"type": "TestEnemy",
+					"properties": {
+						"initially-visible": true,
+						"initial-animation": "Animation 1",
+						"initial-frame": 0,
+						"enable-collisions": true,
+						"live-preview": false
+					},
+					"uid": 7,
+					"sid": 542378058172203,
+					"tags": "",
+					"instanceVariables": {},
+					"behaviors": {
+						"Синусоида": {
+							"properties": {
+								"movement": "horizontal",
+								"wave": "sine",
+								"period": 2,
+								"period-random": 0,
+								"period-offset": 0,
+								"period-offset-random": 0,
+								"magnitude": 120,
+								"magnitude-random": 0,
+								"enabled": true,
+								"live-preview": false
+							}
+						}
+					},
+					"materialSurfaceType": "smooth",
+					"showing": true,
+					"locked": false,
+					"world": {
+						"x": 641.5,
+						"y": 328.5,
+						"width": 27,
+						"height": 27,
+						"originX": 0.5,
+						"originY": 0.5,
+						"color": [
+							1,
+							1,
+							1,
+							1
+						],
+						"z": 0,
+						"angle": 0
 					}
 				}
 			],
