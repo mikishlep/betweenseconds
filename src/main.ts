@@ -1,16 +1,8 @@
-import { PlayerController } from "./player/PlayerController";
-import { TimeController } from "./systems/TimeController";
-
-// тут корневой файл, с которого уже будем подключать всё остальное месиво,
-// дабы не писалось всё в одном файле
-runOnStartup(async runtime => {
-	runtime.addEventListener("beforeprojectstart", () => {
-		const player = new PlayerController(runtime);
-		const time = new TimeController(runtime);
-
-		runtime.addEventListener("tick", () => {
-			player.update();
-			time.update();
-		});
-	});
+import { GameController } from "./game/GameController";
+runOnStartup(runtime => {
+    let game: GameController;
+    // One pair of listeners for the entire runtime; layout reload resets everything.
+    runtime.addEventListener("beforeanylayoutstart", () => { game = new GameController(runtime); });
+    runtime.addEventListener("pretick", () => game?.beforeTick());
+    runtime.addEventListener("tick", () => game?.tick());
 });

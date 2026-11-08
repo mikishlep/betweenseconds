@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild src/main.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=scripts/main.js",
-    "dev": "esbuild src/main.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=scripts/main.js --watch"
+    "test": "node --test tests/*.test.cjs",
+    "build": "esbuild src/main.ts --bundle --format=esm --platform=browser --target=es2022 --minify-whitespace --outfile=scripts/main.js",
+    "dev": "esbuild src/main.ts --bundle --format=esm --platform=browser --target=es2022 --minify-whitespace --outfile=scripts/main.js --watch",
+    "typecheck": "tsc -p tsconfig.json",
+    "package": "python3 tools/package_project.py"
   },
   "repository": {
     "type": "git",

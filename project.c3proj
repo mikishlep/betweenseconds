@@ -63,7 +63,11 @@
 			"Keyboard",
 			"Wall",
 			"TestEnemy",
-			"HowToControl"
+			"HowToControl",
+			"Projectile",
+			"TimeFragment",
+			"Exit",
+			"ProjectileGuide"
 		],
 		"subfolders": []
 	},
@@ -204,8 +208,8 @@
 		"subfolders": []
 	},
 	"properties": {
-		"description": "",
-		"version": "1.0.0.0",
+		"description": "Prototype 2: collect two time fragments and reach the exit.",
+		"version": "0.2.0.0",
 		"autoIncrementVersion": false,
 		"author": "",
 		"authorEmail": "",

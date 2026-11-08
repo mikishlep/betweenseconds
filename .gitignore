@@ -1,3 +1,5 @@
 *.uistate.json
 uistate
 ts-defs
+node_modules/
+dist/
