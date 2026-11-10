@@ -4,7 +4,8 @@ export class HudController {
     constructor(private readonly runtime: IRuntime) {}
     update(state: GameState, moving: boolean, dashReady: boolean): void {
         const terminal = state.status !== "playing";
-        const title = state.status === "won" ? "ВЫХОД НАЙДЕН" : "ВРЕМЯ ИСТЕКЛО";
+        const title = state.status === "won"
+            ? (this.runtime.layout.name === "Tutorial" ? "Обучение завершено!" : "ВЫХОД НАЙДЕН"): "ВРЕМЯ ИСТЕКЛО";
         const html = `<div style="height:100%;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;color:#dce9ef;font:12px/1.5 Arial,sans-serif;pointer-events:none;text-shadow:0 1px 3px #0a1019">
         <div style="display:flex;justify-content:space-between;align-items:center">
         <div style="display:flex;gap:20px;align-items:center"><span style="color:#ed9892;font-size:16px;letter-spacing:3px" aria-label="Здоровье ${state.hp} из 3">${"♥".repeat(state.hp)}<span style="opacity:.25">${"♥".repeat(3-state.hp)}</span></span><span style="color:#81d8df">◇ ${state.fragments}/2</span>${state.exitOpen && !terminal ? '<span style="color:#8cddad">ВЫХОД ОТКРЫТ</span>' : ''}</div>

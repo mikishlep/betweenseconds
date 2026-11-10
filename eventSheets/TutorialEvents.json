@@ -1,0 +1,306 @@
+{
+	"name": "TutorialEvents",
+	"events": [
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-start-of-layout",
+					"objectClass": "System",
+					"sid": 846073185564801
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText",
+					"sid": 346478830548013,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 457984262994683
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 729666258673217,
+					"parameters": {
+						"key": 87
+					}
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText3",
+					"sid": 468807141350664,
+					"isInverted": true
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText4",
+					"sid": 663271406842046,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText",
+					"sid": 601279604392849,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText2",
+					"sid": 232619595609522,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 821713448194789
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 464546254372101,
+					"parameters": {
+						"key": 65
+					}
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText3",
+					"sid": 839165484230579,
+					"isInverted": true
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText4",
+					"sid": 646698336812814,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText",
+					"sid": 827372524046308,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText2",
+					"sid": 788569870366395,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 905146814952216
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 120063120533095,
+					"parameters": {
+						"key": 68
+					}
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText3",
+					"sid": 132302591908605,
+					"isInverted": true
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText4",
+					"sid": 668656263510118,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText",
+					"sid": 202704664527160,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText2",
+					"sid": 422561246574212,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 250925924983211
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 460836918116961,
+					"parameters": {
+						"key": 83
+					}
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText3",
+					"sid": 737949422288426,
+					"isInverted": true
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText4",
+					"sid": 770986866019984,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText",
+					"sid": 909377047129416,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText2",
+					"sid": 435653921767420,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 585520899883974
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 739655045098105,
+					"parameters": {
+						"key": 87
+					},
+					"isInverted": true
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 407616388230102,
+					"parameters": {
+						"key": 65
+					},
+					"isInverted": true
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 487497652436214,
+					"parameters": {
+						"key": 68
+					},
+					"isInverted": true
+				},
+				{
+					"id": "key-is-down",
+					"objectClass": "Keyboard",
+					"sid": 189050427101596,
+					"parameters": {
+						"key": 83
+					},
+					"isInverted": true
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText2",
+					"sid": 634728845616635
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText2",
+					"sid": 777039518230248,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText3",
+					"sid": 468562421065257,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 383105733249696
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "on-key-pressed",
+					"objectClass": "Keyboard",
+					"sid": 281769626626597,
+					"parameters": {
+						"key": 32
+					}
+				},
+				{
+					"id": "is-visible",
+					"objectClass": "TutorialText4",
+					"sid": 190678929742173,
+					"isInverted": true
+				}
+			],
+			"actions": [
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText3",
+					"sid": 645828257747672,
+					"parameters": {
+						"visibility": "invisible"
+					}
+				},
+				{
+					"id": "set-visible",
+					"objectClass": "TutorialText4",
+					"sid": 484729876707333,
+					"parameters": {
+						"visibility": "visible"
+					}
+				}
+			],
+			"sid": 290048901503560
+		}
+	],
+	"sid": 238014401329813
+}

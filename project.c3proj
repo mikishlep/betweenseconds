@@ -28,6 +28,13 @@
 			"bundled": false
 		},
 		{
+			"type": "plugin",
+			"id": "Text",
+			"name": "Текст",
+			"author": "Scirra",
+			"bundled": false
+		},
+		{
 			"type": "behavior",
 			"id": "EightDir",
 			"name": "8 Направлений",
@@ -67,7 +74,11 @@
 			"Projectile",
 			"TimeFragment",
 			"Exit",
-			"ProjectileGuide"
+			"ProjectileGuide",
+			"TutorialText",
+			"TutorialText2",
+			"TutorialText3",
+			"TutorialText4"
 		],
 		"subfolders": []
 	},
@@ -80,13 +91,16 @@
 	},
 	"layouts": {
 		"items": [
-			"Макет 1"
+			"Макет 1",
+			"Макет 2",
+			"Tutorial"
 		],
 		"subfolders": []
 	},
 	"eventSheets": {
 		"items": [
-			"Список событий 1"
+			"Список событий 1",
+			"TutorialEvents"
 		],
 		"subfolders": []
 	},
