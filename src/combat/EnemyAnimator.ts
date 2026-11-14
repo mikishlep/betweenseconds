@@ -8,7 +8,7 @@ export class EnemyAnimator {
         if (dt <= 0 && this.name) return;
         moving ||= dt > 0 && this.x !== null && Math.hypot(sprite.x - this.x, sprite.y - this.y) > .01;
         this.x = sprite.x; this.y = sprite.y;
-        const base = kind === "warden" ? "Warden" : kind === "hunter" ? "Hunter" : "Shooter";
+        const base = kind === "bulwark" ? "Bulwark" : kind === "viper" ? "Viper" : kind === "shade" ? "Shade" : kind === "warden" ? "Warden" : kind === "echo" ? "Echo" : kind === "regent" ? "Regent" : kind === "hunter" ? "Hunter" : "Shooter";
         const pose = recovery > 0 ? "Attack" : windup ? "Windup" : moving ? "Walk" : "Idle";
         const name = base + pose;
         if (name !== this.name) { sprite.setAnimation(name); this.name = name; this.elapsed = 0; }

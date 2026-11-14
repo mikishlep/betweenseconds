@@ -1,3 +1,7 @@
+# Prototype 5 / Journey
+
+Current results: 70 tests; see [JOURNEY_TESTING.md](JOURNEY_TESTING.md). The report below is historical.
+
 # Версия 4 — 14 ноября 2026
 
 Проверка кода: **56/56 автотестов**, typecheck и build успешны. Отчёты ниже — история предыдущих версий.

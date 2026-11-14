@@ -21,7 +21,7 @@ interface ObjectType<T> {
 }
 interface Hud { htmlContent: string; addEventListener(name: "click", callback: (event: { targetId: string }) => void): void; }
 interface IRuntime {
- objects: { Player: ObjectType<Sprite>; TestEnemy: ObjectType<Sprite>;
+ objects: { WorldProp?: ObjectType<Sprite>; Player: ObjectType<Sprite>; TestEnemy: ObjectType<Sprite>;
  Wall: ObjectType<Sprite>; Projectile: ObjectType<Sprite>;
  ProjectileGuide: ObjectType<Sprite>; TimeFragment: ObjectType<Sprite>; Exit: ObjectType<Sprite>;
  ActorShadow: ObjectType<Sprite>; WallFace: ObjectType<Sprite>; ArenaFloor: ObjectType<Sprite>; CombatFx: ObjectType<Sprite>; CombatMarker: ObjectType<Sprite>; HeroVisual: ObjectType<Sprite>; TutorialText: ObjectType<Sprite>; TutorialText2: ObjectType<Sprite>; TutorialText3: ObjectType<Sprite>; TutorialText4: ObjectType<Sprite>;

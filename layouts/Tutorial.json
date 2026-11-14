@@ -10,7 +10,7 @@
 					"type": "ArenaFloor",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Frozen",
+						"initial-animation": "GardenFrozen",
 						"initial-frame": 0,
 						"enable-collisions": false,
 						"live-preview": false
@@ -202,9 +202,9 @@
 					"locked": false,
 					"world": {
 						"x": 600,
-						"y": 50,
+						"y": 80,
 						"width": 1200,
-						"height": 100,
+						"height": 260,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [
@@ -246,7 +246,7 @@
 						"x": 600,
 						"y": 690,
 						"width": 1200,
-						"height": 60,
+						"height": 140,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [
@@ -480,7 +480,7 @@
 					"locked": false,
 					"world": {
 						"x": 420,
-						"y": 180,
+						"y": 270,
 						"width": 24,
 						"height": 24,
 						"originX": 0.5,
@@ -721,6 +721,40 @@
 						"y": -400,
 						"width": 64,
 						"height": 16,
+						"originX": 0.5,
+						"originY": 0.5,
+						"color": [
+							1,
+							1,
+							1,
+							1
+						],
+						"z": 0,
+						"angle": 0
+					}
+				},
+				{
+					"type": "WorldProp",
+					"properties": {
+						"initially-visible": true,
+						"initial-animation": "Chest",
+						"initial-frame": 0,
+						"enable-collisions": false,
+						"live-preview": false
+					},
+					"uid": 20000001,
+					"sid": 890000000000500,
+					"tags": "",
+					"instanceVariables": {},
+					"behaviors": {},
+					"materialSurfaceType": "smooth",
+					"showing": true,
+					"locked": false,
+					"world": {
+						"x": -600,
+						"y": -600,
+						"width": 64,
+						"height": 56,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [

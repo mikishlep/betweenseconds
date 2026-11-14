@@ -84,7 +84,8 @@
 			"CombatFx",
 			"CombatMarker",
 			"ActorShadow",
-			"WallFace"
+			"WallFace",
+			"WorldProp"
 		],
 		"subfolders": []
 	},
@@ -228,7 +229,7 @@
 	},
 	"properties": {
 		"description": "Playable core: tutorial, three combat rooms, melee/parry, pulse, three enemy roles and a two-phase guardian.",
-		"version": "0.4.0.0",
+		"version": "0.5.0.0",
 		"autoIncrementVersion": false,
 		"author": "",
 		"authorEmail": "",

@@ -1,3 +1,4 @@
+import { RoomWorld } from "../world/RoomWorld";
 import { Menu } from "../ui/Menu";
 import { toggleFullscreen } from "../ui/Display";
 import { TutorialController } from "./TutorialController";
@@ -33,12 +34,19 @@ export class GameController {
     private restarting = false;
     private escapeWasDown = false;
     private damageFlash = 0;
+    private readonly world: RoomWorld;
+    private fWasDown=false; private qWasDown=false; private mWasDown=false; private settled=false; private arrival=3;
     private lastHp = 3;
     constructor(private readonly runtime: IRuntime, private readonly campaign = new Campaign(), private readonly menu = new Menu()) {
         this.tutorial = runtime.layout.name === "Tutorial" ? new TutorialController(runtime) : null;
         this.room = this.tutorial ? TUTORIAL_ROOM : campaign.current;
         this.effects = new Effects(runtime);
+        this.world = new RoomWorld(runtime,this.room,campaign);
+        this.state.hp=this.tutorial?3:campaign.hp;
+        if(this.room.optional)this.state.fragments=2;
+        this.lastHp=this.state.hp;
         this.combat = new CombatSystem(runtime, this.state, this.room, this.effects);
+        this.combat.weapon=campaign.weapon;
         this.hero = new HeroAnimator(runtime);
         this.player = new PlayerController(runtime);
         this.actions = new PlayerActions(runtime);
@@ -46,6 +54,7 @@ export class GameController {
         this.hud = new HudController(runtime);
         this.depth = new Depth(runtime);
         this.presentation = new Presentation(runtime, this.room);
+        this.fWasDown=runtime.keyboard.isKeyDown("KeyF");this.qWasDown=runtime.keyboard.isKeyDown("KeyQ");this.mWasDown=runtime.keyboard.isKeyDown("KeyM");
         this.escapeWasDown = runtime.keyboard.isKeyDown("Escape");
         this.helpWasDown = runtime.keyboard.isKeyDown("KeyH");
         this.enterWasDown = runtime.keyboard.isKeyDown("Enter");
@@ -55,6 +64,11 @@ export class GameController {
         this.updateHud(false);
         runtime.objects.HowToControl.getFirstInstance()!.addEventListener("click", event => {
             if (event.targetId === "fullscreen") { void toggleFullscreen().then(ok => { this.menu.notice = ok ? "" : "Браузер запретил полноэкранный режим. Разверните окно вручную."; }); return; }
+            const action=event.targetId;
+            if(action === "retry" && this.state.status === "lost"){this.travel(undefined,true);return;}
+            if(action === "menu-title"){this.menu.page="title";return;}
+            if(action === "next" && this.state.status === "won"){this.travel();return;}
+            if(/^travel-\d+$/.test(action) && this.state.status === "won"){this.travel(Number(action.slice(7)));return;}
             if (this.menu.playing) return;
             const id = event.targetId;
             this.menu.handle(id);
@@ -66,6 +80,14 @@ export class GameController {
     attack(): void { if (this.state.status === "playing" && !this.restarting && this.menu.playing) this.actions.requestAttack(); }
     beforeTick(): void {
         const key = (code: string) => this.runtime.keyboard.isKeyDown(code);
+        const map=key("KeyM"),interact=key("KeyF"),cycle=key("KeyQ");
+        if(map&&!this.mWasDown && (this.menu.playing||this.menu.page==="map"))this.menu.page=this.menu.page==="map"?"playing":"map";
+        this.mWasDown=map;
+        if(this.menu.playing && this.state.status === "playing"){
+            if(interact&&!this.fWasDown)this.world.interact(this.runtime.objects.Player.getFirstInstance()!,this.state);
+            if(cycle&&!this.qWasDown){this.campaign.cycleWeapon();this.combat.weapon=this.campaign.weapon;}
+        }
+        this.fWasDown=interact;this.qWasDown=cycle;
         const escape = key("Escape");
         if (escape && !this.escapeWasDown) this.menu.escape();
         this.escapeWasDown = escape;
@@ -74,13 +96,9 @@ export class GameController {
         const openTutorial = !this.tutorial && help && !this.helpWasDown;
         const advance = this.state.status === "won" && enter && !this.enterWasDown;
         this.helpWasDown = help; this.enterWasDown = enter;
-        if ((down && !this.restartWasDown) || advance || openTutorial) {
-            this.restarting = true;
-            if (openTutorial || (advance && this.tutorial)) this.campaign.reset();
-            else if (advance) this.campaign.advance();
-            this.runtime.timeScale = 1;
-            this.runtime.goToLayout(openTutorial ? "Tutorial" : advance ? "Макет 1" : this.runtime.layout.name);
-        }
+        if(openTutorial){this.campaign.reset();this.restarting=true;this.runtime.timeScale=1;this.runtime.goToLayout("Tutorial");}
+        else if(down&&!this.restartWasDown)this.travel(undefined,true);
+        else if(advance)this.travel();
         this.restartWasDown = down;
         const playing = this.state.status === "playing" && !this.restarting;
         this.player.update(playing);
@@ -94,6 +112,7 @@ export class GameController {
         const dt = this.time.afterTick(this.state.status === "playing" && this.menu.playing, this.actions.acting);
         const player = this.runtime.objects.Player.getFirstInstance()!;
         const realDt = Math.min(player.dt, 1 / 30);
+        if(this.menu.playing)this.arrival=Math.max(0,this.arrival-realDt);
         if (this.state.status === "playing" && this.menu.playing) {
             const previous = this.time.previousPosition;
             this.tutorial?.update(Math.hypot(player.x - previous.x, player.y - previous.y), realDt, this.player.isDashing, true);
@@ -110,6 +129,7 @@ export class GameController {
                 if (segmentHit(previous, player, exit, player.width / 2) !== null) this.state.exit();
             }
         }
+        if(this.state.status === "won" && !this.settled){if(!this.tutorial)this.campaign.complete(this.state.hp);this.settled=true;}
         if (this.state.status !== "playing") {
             this.tutorial?.update(0, 0, false, false);
             this.runtime.timeScale = 0;
@@ -130,9 +150,17 @@ export class GameController {
         this.tutorial?.combatHint(this.state.attacks, this.state.pulses, this.state.enemiesRemaining, this.state.fragments);
         this.updateHud(dt > 0);
     }
+    private travel(target?:number,retry=false):void {
+        if(this.restarting)return;
+        if(retry&&!this.room.optional)this.campaign.hp=3;
+        else if(this.tutorial)this.campaign.reset();
+        else if(!this.campaign.advance(target))return;
+        this.restarting=true;this.runtime.timeScale=1;
+        this.runtime.goToLayout(retry?this.runtime.layout.name:"Макет 1");
+    }
     private updateHud(active: boolean): void {
         this.hud.update(this.state, active && this.state.status === "playing", this.player.ready, {
-            room: this.room, tutorial: !!this.tutorial, last: !this.tutorial && this.campaign.last, boss: this.combat.boss, menu: this.menu, damage: this.menu.flashes ? this.damageFlash : 0
+            room: this.room, tutorial: !!this.tutorial, last: !this.tutorial && this.campaign.last, boss: this.combat.boss, campaign:this.campaign,arrival:this.arrival,hint:this.world.notice||this.world.hint,menu: this.menu, damage: this.menu.flashes ? this.damageFlash : 0
         });
     }
 }

@@ -14,7 +14,7 @@ const {CombatSystem}=load('src/game/CombatSystem.ts');
 function fixture(){
  const keys=new Set(), calls=[];let drawOrder=0;
  const objects={};
- for(const name of ['Player','TestEnemy','Wall','Projectile','ProjectileGuide','TimeFragment','Exit','HowToControl','HeroVisual','TutorialText','TutorialText2','TutorialText3','TutorialText4','CombatFx','CombatMarker','ArenaFloor','ActorShadow','WallFace']){
+ for(const name of ['Player','TestEnemy','Wall','Projectile','ProjectileGuide','TimeFragment','Exit','HowToControl','HeroVisual','TutorialText','TutorialText2','TutorialText3','TutorialText4','CombatFx','CombatMarker','ArenaFloor','ActorShadow','WallFace','WorldProp']){
   const instances=[];
   objects[name]={getFirstInstance:()=>instances[0]??null,getAllInstances:()=>[...instances],createInstance:(_,x,y)=>make(name,x,y),instances};
  }
@@ -130,9 +130,9 @@ test('first prototype controllers execute WASD/dash and movement-based time stop
  time.update();time.update();assert.equal(f.runtime.timeScale,0);assert.equal(f.p.timeScale,1);f.p.x++;time.update();assert.equal(f.runtime.timeScale,1);
 });
 test('native Sine offset commits while moving and stays stable across repeated freezes',()=>{
- const f=fixture(),g=new GameController(f.runtime);g.beforeTick();f.p.x++;f.enemy.behaviors['Синусоида'].value=10;g.tick();assert.equal(f.enemy.x,630);
+ const f=fixture(),g=new GameController(f.runtime);g.beforeTick();f.p.x++;f.enemy.behaviors['Синусоида'].value=10;g.tick();assert.ok(f.enemy.x>620 && f.enemy.x<=620+80/60);const heldX=f.enemy.x;
  for(let i=0;i<100;i++){g.beforeTick();f.enemy.behaviors['Синусоида'].value=20;f.enemy.behaviors['Синусоида'].phase+=.1;g.tick();}
- assert.equal(f.enemy.x,630);assert.equal(f.enemy.behaviors['Синусоида'].phase,0);
+ assert.equal(f.enemy.x,heldX);assert.equal(f.enemy.behaviors['Синусоида'].phase,0);
 });
 
 test('shot direction and animated frame freeze with no post-launch trajectory lines',()=>{
@@ -289,25 +289,22 @@ test('Bloom Warden cycles sweep, petal fan, and targeted blooms; phase two expan
  const points=c.enemies[0].targets.map(p=>({...p}));f.p.y+=80;c.update(0,{...f.p});assert.equal(JSON.stringify(c.enemies[0].targets),JSON.stringify(points));
  c.update(.81,{...f.p});assert.equal(c.hazards.filter(h=>h.kind==='bloom').length,5);
 });
-test('full three-room run: defeat all roles, collect fragments, win, advance, and restart a new run',()=>{
- const campaign=new Campaign();const kinds=new Set();
- for(let room=0;room<3;room++){
-  const f=fixture(),g=new GameController(f.runtime,campaign);for(const e of g.combat.enemies)kinds.add(e.kind);
-  defeatAll(f,g);f.keys.clear();
-  for(const [x,y] of [[420,180],[900,540],[1100,360]]){g.beforeTick();f.p.x=x;f.p.y=y;g.tick();}
-  assert.equal(g.state.status,'won');assert.equal(g.state.hp>0,true);assert.equal(g.state.exitOpen,true);
-  f.keys.add('Enter');g.beforeTick();assert.ok(f.calls.includes('Макет 1'));assert.equal(campaign.room,(room+1)%3);
- }
- assert.deepEqual([...kinds].sort(),['hunter','shooter','warden']);
+test('campaign main route reaches both minibosses and the final boss, with optional branches',()=>{
+ const c=new Campaign(),seen=[];
+ for(let n=0;n<20;n++){seen.push(c.room);c.complete(3);if(c.last)break;assert.equal(c.advance(),true);}
+ assert.equal(c.last,true);assert.equal(seen.length,13);assert.ok(seen.includes(1));assert.ok(seen.includes(7));assert.ok(seen.includes(11));
+ assert.ok(seen.includes(12));assert.ok(seen.includes(13));assert.ok(seen.includes(14));assert.equal(c.weapon,'lance');
+ c.advance();assert.equal(c.room,0);assert.equal(c.weapon,'blade');
+ c.room=1;c.complete(2);assert.equal(c.advance(2),true);assert.equal(c.current.optional,true);assert.equal(c.advance(3),true);
 });
 test('R restarts the current campaign room and H resets the run before Tutorial',()=>{
- const campaign=new Campaign();campaign.advance();let f=fixture(),g=new GameController(f.runtime,campaign);f.keys.add('KeyR');g.beforeTick();assert.equal(campaign.room,1);
+ const campaign=new Campaign();campaign.advance();let f=fixture(),g=new GameController(f.runtime,campaign);f.keys.add('KeyR');g.beforeTick();assert.equal(campaign.room,12);
  f=fixture();g=new GameController(f.runtime,campaign);f.keys.add('KeyH');g.beforeTick();assert.equal(campaign.room,0);assert.ok(f.calls.includes('Tutorial'));
 });
 test('color/frozen floor switches with movement and attacks, while hero and threats retain their own art',()=>{
  const f=fixture();const floor=f.make('ArenaFloor',600,360,1200,720);const g=new GameController(f.runtime);
- assert.equal(floor.animationName,'Frozen');g.attack();g.beforeTick();g.tick();assert.equal(floor.animationName,'Color');
- for(let i=0;i<30;i++){g.beforeTick();g.tick();}assert.equal(floor.animationName,'Frozen');assert.ok(f.runtime.objects.HeroVisual.getFirstInstance().animationName);
+ assert.equal(floor.animationName,'GardenFrozen');g.attack();g.beforeTick();g.tick();assert.equal(floor.animationName,'GardenColor');
+ for(let i=0;i<30;i++){g.beforeTick();g.tick();}assert.equal(floor.animationName,'GardenFrozen');assert.ok(f.runtime.objects.HeroVisual.getFirstInstance().animationName);
 });
 
 test('holding E across a room load does not immediately consume the new charge',()=>{
@@ -325,7 +322,7 @@ const {Effects}=load('src/world/Effects.ts');
 test('2.5D: floor stays behind shadows, actors sort behind/in front of raised cover, shadows clean up',()=>{
  const f=fixture(),floor=f.make('ArenaFloor',600,360,1200,720),wall=f.make('Wall',140,400,28,140),depth=new Depth(f.runtime);
  f.p.y=300;depth.update();const hero=f.runtime.objects.HeroVisual.getFirstInstance(),face=f.runtime.objects.WallFace.getFirstInstance();
- assert.equal(floor.drawOrder,-1);assert.ok(hero.drawOrder<face.drawOrder);assert.equal(face.width,wall.width);assert.equal(face.height,12);
+ assert.equal(floor.drawOrder,-1);assert.ok(hero.drawOrder<face.drawOrder);assert.equal(face.width,wall.width+8);assert.equal(face.height,64);
  assert.equal(f.runtime.objects.ActorShadow.instances.length,2);f.p.y=600;depth.update();assert.ok(hero.drawOrder>face.drawOrder);
  f.enemy.destroy();depth.update();assert.equal(f.runtime.objects.ActorShadow.instances.length,1);
 });
@@ -404,4 +401,86 @@ test('all five enemy/boss animation sets contain authored walk, anticipation and
  }
  for(const name of ['Arrow','Petal'])assert.equal(JSON.parse(fs.readFileSync('objectTypes/Projectile.json')).animations.items.find(a=>a.name===name).frames.length,6);
  const project=JSON.parse(fs.readFileSync('project.c3proj'));assert.equal(project.properties.fullscreenMode,'letterbox-scale');assert.equal(project.properties.fullscreenQuality,'high');
+});
+
+test('Sine phase stops during windup; resuming cannot teleport through cover',()=>{
+ const {TimeController}=load('src/systems/TimeController.ts'),f=fixture();let allowed=true;const t=new TimeController(f.runtime,()=>allowed);
+ t.beforeTick(true);f.p.x++;f.enemy.behaviors['Синусоида'].value=120;t.afterTick(true);const x=f.enemy.x;assert.ok(x-620<=80/60+1e-8);
+ allowed=false;t.beforeTick(true);assert.equal(f.enemy.timeScale,0);f.p.x++;f.enemy.behaviors['Синусоида'].phase=20;t.afterTick(true);assert.equal(f.enemy.x,x);assert.equal(f.enemy.behaviors['Синусоида'].phase,0);
+ allowed=true;f.make('Wall',x+16,360,4,100);t.beforeTick(true);f.p.x++;t.afterTick(true);assert.equal(f.enemy.x,x);
+});
+test('journey graph has 15 reachable rooms, 5 zones, 2 optional rooms and 6 distinct boss encounters',()=>{
+ assert.equal(ROOMS.length,15);assert.equal(new Set(ROOMS.map(r=>r.zone)).size,5);assert.equal(ROOMS.filter(r=>r.optional).length,2);
+ const seen=new Set(),visit=i=>{if(seen.has(i))return;seen.add(i);for(const j of ROOMS[i].next){assert.ok(j>=0&&j<ROOMS.length);visit(j);}};visit(0);assert.equal(seen.size,15);
+ assert.deepEqual([...new Set(ROOMS.flatMap(r=>r.enemies.map(e=>e.kind)).filter(k=>!['hunter','shooter'].includes(k)))].sort(),['bulwark','echo','regent','shade','viper','warden']);
+});
+test('rewards cannot be farmed by replay, invalid branches are rejected, Q cycles unlocked weapons',()=>{
+ const c=new Campaign();c.room=1;c.complete(2);assert.equal(c.weapon,'rose');assert.equal(c.hp,3);const money=c.coins;c.complete(2);assert.equal(c.coins,money);
+ assert.equal(c.advance(11),false);assert.equal(c.room,1);c.cycleWeapon();assert.equal(c.weapon,'blade');c.cycleWeapon();assert.equal(c.weapon,'rose');
+ c.room=7;c.complete(2);assert.equal(c.weapon,'lance');c.reset();assert.equal(c.weapon,'blade');assert.equal(c.coins,0);assert.equal(c.opened.size,0);
+});
+test('optional room chest needs proximity, grants loot once, and recovery spends currency',()=>{
+ const {RoomWorld}=load('src/world/RoomWorld.ts'),f=fixture(),c=new Campaign();c.room=2;const s=new GameState();s.hp=1;
+ const world=new RoomWorld(f.runtime,c.current,c);world.interact(f.p,s);assert.equal(c.coins,0);
+ f.p.x=600;world.interact(f.p,s);assert.equal(c.coins,3);assert.equal(s.hp,2);assert.equal(f.runtime.objects.WorldProp.getFirstInstance().animationName,'ChestOpen');
+ world.interact(f.p,s);assert.equal(c.coins,0);assert.equal(s.hp,3);world.interact(f.p,s);assert.equal(c.coins,0);
+ const reloaded=new RoomWorld(f.runtime,c.current,c);assert.equal(f.runtime.objects.WorldProp.getFirstInstance().animationName,'ChestOpen');assert.equal(c.loot(),false);
+});
+test('result buttons advance to a selected optional room; retry and title are actionable',()=>{
+ const f=fixture(),c=new Campaign();c.room=1;const g=new GameController(f.runtime,c);g.state.status='won';g.tick();
+ const hud=f.runtime.objects.HowToControl.getFirstInstance();assert.match(hud.htmlContent,/travel-2/);hud.events.click({targetId:'travel-2'});assert.equal(c.room,2);assert.ok(f.calls.includes('Макет 1'));
+ const h=fixture(),retry=new GameController(h.runtime);retry.state.status='lost';retry.tick();const el=h.runtime.objects.HowToControl.getFirstInstance();assert.match(el.htmlContent,/id="retry"/);el.events.click({targetId:'retry'});assert.ok(h.calls.includes('Макет 1'));
+});
+test('map M pauses the world and closes without changing the room',()=>{
+ const f=fixture(),g=new GameController(f.runtime);f.keys.add('KeyM');g.beforeTick();g.tick();assert.equal(f.runtime.timeScale,0);assert.match(f.runtime.objects.HowToControl.getFirstInstance().htmlContent,/Карта пути/);
+ f.keys.delete('KeyM');g.beforeTick();f.keys.add('KeyM');g.beforeTick();g.tick();assert.doesNotMatch(f.runtime.objects.HowToControl.getFirstInstance().htmlContent,/Карта пути/);
+});
+test('Echo lance is a frozen projectile, damages at range, and is blocked by stone cover',()=>{
+ for(const blocked of [false,true]){
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.weapon='lance';f.p.x=300;if(blocked)f.make('Wall',450,360,30,100);
+ c.strike(f.p,0);assert.equal(c.enemies[0].hp,2);const b=c.playerBolts[0].sprite;c.update(0,{...f.p});assert.equal(b.x,300);
+ c.update(.8,{...f.p});assert.equal(c.enemies[0].hp,blocked?2:1);assert.equal(c.playerBolts.length,0);
+ }
+});
+test('Bulwark blocks the front, exposes its back, and pulse disrupts guard',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[12],enemies:[{kind:'bulwark',x:620,y:360,hp:7}]});
+ c.strike({x:560,y:360},0);assert.equal(c.enemies[0].hp,7);c.strike({x:680,y:360},Math.PI);assert.equal(c.enemies[0].hp,6);
+ c.pulse({x:560,y:360});assert.equal(c.enemies[0].hp,5);
+});
+test('Viper damage exists only during the warned fast lunge',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[13],enemies:[{kind:'viper',x:140,y:360,hp:6}]});f.p.x=180;
+ c.update(1.1,{...f.p});assert.equal(s.hp,3);assert.equal(c.enemies[0].locked,true);c.update(.2,{...f.p});assert.equal(s.hp,2);assert.ok(c.enemies[0].sprite.x>220);
+});
+test('Shade cannot be stabbed while faded, but pulse reveals and damages it',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[14],enemies:[{kind:'shade',x:620,y:360,hp:6}]});c.enemies[0].recovery=.7;
+ c.strike({x:560,y:360},0);assert.equal(c.enemies[0].hp,6);c.pulse({x:560,y:360});assert.equal(c.enemies[0].hp,5);assert.ok(c.enemies[0].recovery<=.3);
+});
+test('major bosses have three signalled phases; phase transitions cancel old windups',()=>{
+ for(const kind of ['warden','echo','regent']){
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[1],enemies:[{kind,x:620,y:360,hp:10}]});const e=c.enemies[0];c.update(1.3,{...f.p});assert.equal(e.locked,true);
+ e.hp=6;c.update(.01,{...f.p});assert.equal(c.boss.phase,2);assert.equal(e.locked,false);assert.equal(e.aura.isVisible,true);
+ e.hp=2;c.update(.01,{...f.p});assert.equal(c.boss.phase,3);assert.equal(e.aura.width,190);assert.ok(e.sprite.colorRgb[1]<1);
+ }
+});
+test('every room spawns enemies on the visible walkable floor; dynamic barriers are low and wide',()=>{
+ const {RoomWorld}=load('src/world/RoomWorld.ts');for(const room of ROOMS){const f=fixture(),c=new Campaign();new RoomWorld(f.runtime,room,c);
+ for(const e of room.enemies){assert.ok(e.y>=230&&e.y<=600);for(const w of f.runtime.objects.Wall.getAllInstances())assert.equal(segmentHit(e,e,w,14),null,room.title);}
+ for(const w of f.runtime.objects.Wall.getAllInstances())assert.ok(w.width>w.height*3);
+ }
+});
+
+test('Regent final phase warns about combined rifts before releasing them with the fan',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[11],enemies:[{kind:'regent',x:620,y:360,hp:14}]});const e=c.enemies[0];e.hp=2;c.update(.01,{...f.p});e.recovery=0;
+ c.update(.5,{...f.p});assert.equal(e.locked,true);assert.equal(e.marks.length,7);assert.ok(e.marks.every(m=>m.isVisible));assert.equal(f.runtime.objects.Projectile.instances.length,0);
+ const targets=JSON.stringify(e.targets);c.update(0,{...f.p});assert.equal(JSON.stringify(e.targets),targets);
+ c.update(.86,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,13);assert.equal(c.hazards.filter(h=>h.kind==='rift').length,7);
+});
+test('every boss uses imported poses, cleans warning markers on death, and freezes its pose',()=>{
+ const imported=JSON.parse(fs.readFileSync('objectTypes/TestEnemy.json')).animations.items.map(a=>a.name);
+ for(const kind of ['warden','echo','regent','bulwark','viper','shade']){
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[1],enemies:[{kind,x:620,y:360,hp:8}]});
+ for(let i=0;i<100;i++)c.update(1/60,{...f.p});const e=c.enemies[0];assert.ok(imported.includes(e.sprite.animationName));
+ const held=[e.sprite.x,e.sprite.y,e.sprite.animationName,e.sprite.animationFrame,e.timer];for(let i=0;i<30;i++)c.update(0,{...f.p});assert.deepEqual([e.sprite.x,e.sprite.y,e.sprite.animationName,e.sprite.animationFrame,e.timer],held);
+ c.hit(e,100);assert.equal(c.enemies.length,0);assert.equal(f.runtime.objects.CombatMarker.instances.length,0);
+ }
 });

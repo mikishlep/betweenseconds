@@ -8,8 +8,8 @@ export class Depth {
         this.heroShadow = this.makeShadow(30, 12);
         for (const wall of runtime.objects.Wall.getAllInstances()) {
             if (!wall.isVisible) continue;
-            const face = runtime.objects.WallFace.createInstance("scene", wall.x, wall.y + wall.height / 2 + 6);
-            face.width = wall.width; face.height = 12;
+            const face = runtime.objects.WallFace.createInstance("scene", wall.x, wall.y - 12);
+            face.setAnimation("Barricade"); face.width = wall.width + 8; face.height = 64; wall.opacity = 0;
             this.faces.push({ wall, face });
         }
     }
@@ -34,7 +34,8 @@ export class Depth {
         const ordered = [{ sprite: hero, foot: player.y + 14 },
             ...enemies.map(sprite => ({ sprite, foot: sprite.y + 14 })),
             ...this.runtime.objects.Wall.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
-            ...this.faces.map(({ wall, face }) => ({ sprite: face, foot: wall.y + wall.height / 2 + 12 })),
+            ...this.faces.map(({ wall, face }) => ({ sprite: face, foot: wall.y + wall.height / 2 + 1 })),
+            ...(this.runtime.objects.WorldProp?.getAllInstances() ?? []).map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.Exit.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.TimeFragment.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.CombatFx.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height * 0.2 }))];

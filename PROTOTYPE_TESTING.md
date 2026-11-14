@@ -1,3 +1,7 @@
+# Prototype 5 / Journey
+
+Current results: 70 tests; see [JOURNEY_TESTING.md](JOURNEY_TESTING.md). The report below is historical.
+
 # Between Seconds — проверка прототипов
 
 **Текущая версия: Prototype 4 / Bloom Combat.** Актуальные результаты (56 тестов), игровой цикл, анимации, атаки и незаполненные ручные сценарии — в `CORE_LOOP_TESTING.md`. Ниже сохранена история предыдущих сборок; ранние упоминания атаки без урона и 28/32 тестов не описывают текущую версию.

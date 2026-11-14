@@ -969,6 +969,474 @@
 				"repeatCount": 1,
 				"repeatTo": 0,
 				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901000,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901001,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000600,
+				"name": "BulwarkIdle",
+				"isLooping": true,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901010,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901011,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901012,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000601,
+				"name": "BulwarkWalk",
+				"isLooping": true,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901020,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000602,
+				"name": "BulwarkWindup",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901030,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901031,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000603,
+				"name": "BulwarkAttack",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901100,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901101,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000610,
+				"name": "ViperIdle",
+				"isLooping": true,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901110,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901111,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901112,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000611,
+				"name": "ViperWalk",
+				"isLooping": true,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901120,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000612,
+				"name": "ViperWindup",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901130,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901131,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000613,
+				"name": "ViperAttack",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901200,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901201,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000620,
+				"name": "ShadeIdle",
+				"isLooping": true,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901210,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901211,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901212,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000621,
+				"name": "ShadeWalk",
+				"isLooping": true,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901220,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000622,
+				"name": "ShadeWindup",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
+			},
+			{
+				"frames": [
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901230,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					},
+					{
+						"width": 96,
+						"height": 128,
+						"originX": 0.5,
+						"originY": 0.86,
+						"originalSource": "",
+						"exportFormat": "lossless",
+						"exportQuality": 0.8,
+						"fileType": "image/png",
+						"imageSpriteId": 9901231,
+						"useCollisionPoly": false,
+						"duration": 1,
+						"tag": ""
+					}
+				],
+				"sid": 890000000000623,
+				"name": "ShadeAttack",
+				"isLooping": false,
+				"isPingPong": false,
+				"repeatCount": 1,
+				"repeatTo": 0,
+				"speed": 0
 			}
 		],
 		"subfolders": []

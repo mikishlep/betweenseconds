@@ -7,8 +7,8 @@ export class Presentation {
         this.active = active;
         const floor = this.runtime.objects.ArenaFloor.getFirstInstance();
         if (floor) {
-            floor.setAnimation(active ? "Color" : "Frozen");
-            floor.colorRgb = active ? [this.room.tint[0] * 0.68, this.room.tint[1] * 0.73, this.room.tint[2] * 0.86] : [0.48, 0.52, 0.64];
+            floor.setAnimation((this.room.zone ?? "Garden") + (active ? "Color" : "Frozen"));
+            floor.colorRgb = active ? this.room.tint : [0.85, 0.87, 0.94];
         }
         for (const type of [this.runtime.objects.Wall, this.runtime.objects.WallFace])
             for (const wall of type.getAllInstances()) wall.colorRgb = active ? this.room.tint : [0.65, 0.7, 0.78];
