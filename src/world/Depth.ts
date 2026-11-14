@@ -24,21 +24,22 @@ export class Depth {
         const enemies = this.runtime.objects.TestEnemy.getAllInstances(), alive = new Set(enemies);
         for (const [enemy, shadow] of this.enemyShadows) if (!alive.has(enemy)) { shadow.destroy(); this.enemyShadows.delete(enemy); }
         this.runtime.objects.ArenaFloor.getFirstInstance()?.moveToBottom();
+        for (const marker of this.runtime.objects.CombatMarker.getAllInstances()) marker.moveToTop();
         this.heroShadow.x = player.x; this.heroShadow.y = player.y + 13; this.heroShadow.moveToTop();
         for (const enemy of enemies) {
             let shadow = this.enemyShadows.get(enemy);
             if (!shadow) { shadow = this.makeShadow(enemy.width * 0.9, enemy.width * 0.3); this.enemyShadows.set(enemy, shadow); }
-            shadow.x = enemy.x; shadow.y = enemy.y + enemy.height / 2 - 2; shadow.moveToTop();
+            shadow.x = enemy.x; shadow.y = enemy.y + 13; shadow.moveToTop();
         }
         const ordered = [{ sprite: hero, foot: player.y + 14 },
-            ...enemies.map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
+            ...enemies.map(sprite => ({ sprite, foot: sprite.y + 14 })),
             ...this.runtime.objects.Wall.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.faces.map(({ wall, face }) => ({ sprite: face, foot: wall.y + wall.height / 2 + 12 })),
             ...this.runtime.objects.Exit.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.TimeFragment.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.CombatFx.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height * 0.2 }))];
         ordered.sort((a, b) => a.foot - b.foot).forEach(entry => entry.sprite.moveToTop());
-        for (const type of [this.runtime.objects.CombatMarker, this.runtime.objects.ProjectileGuide, this.runtime.objects.Projectile])
+        for (const type of [this.runtime.objects.ProjectileGuide, this.runtime.objects.Projectile])
             for (const sprite of type.getAllInstances()) sprite.moveToTop();
     }
 }

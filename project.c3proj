@@ -228,7 +228,7 @@
 	},
 	"properties": {
 		"description": "Playable core: tutorial, three combat rooms, melee/parry, pulse, three enemy roles and a two-phase guardian.",
-		"version": "0.3.0.0",
+		"version": "0.4.0.0",
 		"autoIncrementVersion": false,
 		"author": "",
 		"authorEmail": "",
@@ -238,8 +238,8 @@
 		"pixelRounding": true,
 		"fov": 0.7853981633974483,
 		"useLoaderLayout": false,
-		"fullscreenMode": "letterbox-integer-scale",
-		"fullscreenQuality": "low",
+		"fullscreenMode": "letterbox-scale",
+		"fullscreenQuality": "high",
 		"viewportFit": "auto",
 		"backgroundColor": [
 			0,

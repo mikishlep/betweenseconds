@@ -130,7 +130,7 @@
 					"type": "TestEnemy",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initial-animation": "ShooterIdle",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -161,8 +161,8 @@
 					"world": {
 						"x": 620,
 						"y": 360,
-						"width": 32,
-						"height": 32,
+						"width": 46,
+						"height": 46,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [
@@ -807,10 +807,10 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 16,
-						"y": 16,
-						"width": 822,
-						"height": 448,
+						"x": 0,
+						"y": 0,
+						"width": 854,
+						"height": 480,
 						"originX": 0,
 						"originY": 0,
 						"color": [

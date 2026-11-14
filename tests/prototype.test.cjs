@@ -19,7 +19,7 @@ function fixture(){
   objects[name]={getFirstInstance:()=>instances[0]??null,getAllInstances:()=>[...instances],createInstance:(_,x,y)=>make(name,x,y),instances};
  }
  function make(name,x,y,width=28,height=28){
-  const o={x,y,width,height,angle:0,dt:1/60,timeScale:1,opacity:1,isVisible:true,htmlContent:'',animationSpeed:0,animationFrame:0,setAnimation(name){this.animationName=name;},moveToTop(){this.drawOrder=++drawOrder;},moveToBottom(){this.drawOrder=-1;},behaviors:{},destroy(){const a=objects[name].instances;a.splice(a.indexOf(o),1);}};
+  const o={x,y,width,height,angle:0,dt:1/60,timeScale:1,opacity:1,isVisible:true,htmlContent:'',events:{},addEventListener(name,cb){this.events[name]=cb;},animationSpeed:0,animationFrame:0,setAnimation(name){this.animationName=name;},moveToTop(){this.drawOrder=++drawOrder;},moveToBottom(){this.drawOrder=-1;},behaviors:{},destroy(){const a=objects[name].instances;a.splice(a.indexOf(o),1);}};
   if(name==='TestEnemy')o.behaviors['Синусоида']={phase:0,value:0};
   objects[name].instances.push(o);return o;
  }
@@ -79,13 +79,13 @@ test('walking/dashing through a frozen bullet hurts and consumes it',()=>{
  f.p.x=700;c.update(0,{x:500,y:360});assert.equal(s.hp,2);assert.equal(f.runtime.objects.Projectile.instances.length,0);
 });
 test('wall intercepts a bullet before it can damage the player',()=>{
- const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);f.make('Wall',500,360,28,140);c.update(1,{...f.p});c.update(3,{...f.p});assert.equal(s.hp,3);assert.equal(f.runtime.objects.Projectile.instances.length,1); // new shot after old hits wall
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);f.make('Wall',500,360,28,140);c.update(1,{...f.p});c.update(3,{...f.p});assert.equal(s.hp,3);assert.equal(f.runtime.objects.Projectile.instances.length,0); // no damage through cover, current shot consumed
 });
 test('projectile segment hits moving player, not just final endpoints',()=>{
  const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.update(1,{...f.p});c.update(3,{...f.p});assert.equal(s.hp,2);
 });
-test('contact with frozen enemy costs HP',()=>{
- const f=fixture(),g=new GameController(f.runtime);f.p.x=620;g.beforeTick();g.tick();assert.equal(g.state.hp,2);g.beforeTick();g.tick();assert.equal(g.state.hp,2);
+test('standing next to a stationary enemy does not cause passive damage',()=>{
+ const f=fixture(),g=new GameController(f.runtime);f.p.x=620;g.beforeTick();g.tick();assert.equal(g.state.hp,3);g.beforeTick();g.tick();assert.equal(g.state.hp,3);
 });
 test('exit stays locked until combat is cleared, then fragments and exit complete the room',()=>{
  const f=fixture(),g=new GameController(f.runtime);
@@ -135,16 +135,17 @@ test('native Sine offset commits while moving and stays stable across repeated f
  assert.equal(f.enemy.x,630);assert.equal(f.enemy.behaviors['Синусоида'].phase,0);
 });
 
-test('direction arrow and guide retain direction while frozen and clean up together',()=>{
+test('shot direction and animated frame freeze with no post-launch trajectory lines',()=>{
  const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.update(1,{...f.p});
- const b=f.runtime.objects.Projectile.getFirstInstance(),guide=f.runtime.objects.ProjectileGuide.getFirstInstance();
- assert.equal(b.angle,Math.PI);assert.ok(guide.x<b.x);assert.ok(guide.width>0);assert.ok(guide.width<=110);
- const x=guide.x;c.update(0,{...f.p});assert.equal(guide.x,x);assert.equal(guide.angle,Math.PI);
- f.p.x=700;c.update(0,{x:500,y:360});assert.equal(f.runtime.objects.ProjectileGuide.instances.length,0);
+ const b=f.runtime.objects.Projectile.getFirstInstance();assert.equal(b.angle,Math.PI);assert.equal(b.animationName,'Arrow');
+ assert.equal(f.runtime.objects.ProjectileGuide.instances.length,0);const old=[b.x,b.y,b.animationFrame];c.update(0,{...f.p});assert.deepEqual([b.x,b.y,b.animationFrame],old);
+ c.update(.1,{...f.p});assert.notEqual(b.animationFrame,old[2]);assert.ok(b.x<old[0]);
 });
-test('direction guide is clipped at a wall ahead',()=>{
- const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);f.make('Wall',570,360,20,140);c.update(1,{...f.p});
- const guide=f.runtime.objects.ProjectileGuide.getFirstInstance();assert.ok(guide.width<50);assert.ok(guide.x-guide.width/2>=580-1e-8);
+test('filled pre-shot warning disappears at release instead of following the projectile',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.update(.45,{...f.p});const m=c.enemies[0].marker;
+ assert.equal(m.isVisible,true);assert.equal(m.animationName,'Lane');assert.ok(m.height>=20);assert.ok(m.width>300);
+ const old=[m.x,m.y,m.width,m.opacity];c.update(0,{...f.p});assert.deepEqual([m.x,m.y,m.width,m.opacity],old);
+ c.update(.55,{...f.p});assert.equal(m.isVisible,false);assert.equal(f.runtime.objects.Projectile.instances.length,1);
 });
 
 const {TutorialController}=load('src/game/TutorialController.ts');
@@ -178,10 +179,10 @@ test('Enter cannot skip an unfinished tutorial and R creates a fresh tutorial',(
 });
 test('hero faces four directions, plays five attack frames and keeps collider size',()=>{
  const f=fixture(),h=new HeroAnimator(f.runtime),visual=f.runtime.objects.HeroVisual.getFirstInstance();
- for(const [key,dir] of [['KeyW','Up'],['KeyD','Right'],['KeyA','Left'],['KeyS','Down']]){f.keys.clear();f.keys.add(key);h.update(true);assert.equal(visual.animationName,'Breathe'+dir);}
+ for(const [key,dir] of [['KeyW','Up'],['KeyD','Right'],['KeyA','Left'],['KeyS','Down']]){f.keys.clear();f.keys.add(key);h.update(true);assert.equal(visual.animationName,'Idle'+dir);}
  h.requestAttack();h.update(true);assert.equal(visual.animationName,'AttackDown');assert.equal(visual.animationFrame,0);
  const frames=new Set([0]);for(let i=0;i<32;i++){h.update(true);frames.add(visual.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3,4]);
- h.update(true);assert.equal(visual.animationName,'BreatheDown');assert.equal(f.p.width,28);assert.equal(f.p.height,28);assert.equal(f.p.isVisible,false);
+ h.update(true);assert.equal(visual.animationName,'IdleDown');assert.equal(f.p.width,28);assert.equal(f.p.height,28);assert.equal(f.p.isVisible,false);
 });
 test('hero attack preview runs during world pause but freezes on terminal screen',()=>{
  const f=fixture(),h=new HeroAnimator(f.runtime),v=f.runtime.objects.HeroVisual.getFirstInstance();f.runtime.timeScale=0;h.requestAttack();h.update(true);
@@ -205,9 +206,10 @@ test('left click triggers one attack, right click does not, handlers stay single
  const f=fixture(),listeners={};f.runtime.layout.name='Tutorial';f.runtime.addEventListener=(n,cb)=>(listeners[n]??=[]).push(cb);
  vm.runInNewContext(esbuild.transformSync(fs.readFileSync('scripts/main.js','utf8'),{format:'cjs'}).code,{module:{exports:{}},exports:{},runOnStartup:cb=>cb(f.runtime)});
  for(let i=0;i<5;i++)listeners.beforeanylayoutstart[0]();assert.equal(listeners.pointerdown.length,1);
- const v=f.runtime.objects.HeroVisual.getFirstInstance();listeners.pointerdown[0]({button:2});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'BreatheDown');
+ f.runtime.objects.HowToControl.getFirstInstance().events.click({targetId:'start'});listeners.beforeanylayoutstart[0]();
+ const v=f.runtime.objects.HeroVisual.getFirstInstance();listeners.pointerdown[0]({button:2});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'IdleDown');
  listeners.pointerdown[0]({button:0});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'AttackDown');
- for(let i=0;i<35;i++){listeners.pretick[0]();listeners.tick[0]();}assert.equal(v.animationName,'BreatheDown');
+ for(let i=0;i<35;i++){listeners.pretick[0]();listeners.tick[0]();}assert.equal(v.animationName,'IdleDown');
 });
 
 test('fresh preview of the arena always routes to Tutorial once, then allows the arena',()=>{
@@ -226,9 +228,9 @@ test('hero switches Idle/Walk on actual motion, cycles all frames, and freezes t
  for(const [key,dir] of [['KeyW','Up'],['KeyD','Right'],['KeyA','Left'],['KeyS','Down']]){
   f.keys.clear();f.keys.add(key);h.update(true,true);assert.equal(v.animationName,'Walk'+dir);
   const frames=new Set();for(let i=0;i<35;i++){h.update(true,true);frames.add(v.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3]);
-  h.update(true,false);assert.equal(v.animationName,'Breathe'+dir);
+  h.update(true,false);assert.equal(v.animationName,'Idle'+dir);
  }
- const frames=new Set();for(let i=0;i<75;i++){h.update(true,false);frames.add(v.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3]);
+ const frames=new Set();for(let i=0;i<75;i++){h.update(true,false);frames.add(v.animationFrame);}assert.deepEqual([...frames],[0]);
  const pose=[v.animationName,v.animationFrame];for(let i=0;i<60;i++)h.update(false);assert.deepEqual([v.animationName,v.animationFrame],pose);
 });
 
@@ -275,11 +277,17 @@ test('hunter is blocked by cover even on a large step and freezes when world dt 
  c.update(1,{...f.p});const e=c.enemies[0],x=e.sprite.x,t=e.timer;assert.ok(x<172);
  for(let i=0;i<300;i++)c.update(0,{...f.p});assert.equal(e.sprite.x,x);assert.equal(e.timer,t);
 });
-test('warden has two phases and changes its ring from 8+1 to 12+1 bullets, telegraphs freeze',()=>{
+test('Bloom Warden cycles sweep, petal fan, and targeted blooms; phase two expands the bloom pattern',()=>{
  const f=fixture(),s=new GameState(),room={...ROOMS[2],enemies:[{kind:'warden',x:620,y:360,hp:8}]},c=new CombatSystem(f.runtime,s,room);
- c.update(1.5,{...f.p});assert.equal(c.enemies[0].marker.isVisible,true);const time=c.enemies[0].timer;c.update(0,{...f.p});assert.equal(c.enemies[0].timer,time);
- c.update(.31,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,9);assert.equal(c.boss.phase,1);
- for(let i=0;i<4;i++)c.strike({x:560,y:360},0);assert.equal(c.boss.phase,2);c.update(1.16,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,13);assert.equal(s.deflected,9); // the melee strikes cleared the first ring
+ c.update(1.5,{...f.p});assert.equal(c.enemies[0].marker.animationName,'Sweep');assert.equal(c.enemies[0].marker.isVisible,true);
+ const time=c.enemies[0].timer;c.update(0,{...f.p});assert.equal(c.enemies[0].timer,time);
+ c.update(.61,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,0);assert.equal(c.hazards[0].kind,'sweep');
+ c.update(.46,{...f.p});c.update(2.11,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,7);assert.equal(c.boss.phase,1);
+ assert.ok(f.runtime.objects.Projectile.instances.every(b=>b.animationName==='Petal'));
+ for(let i=0;i<4;i++)c.strike({x:560,y:360},0);assert.equal(c.boss.phase,2);
+ c.update(.46,{...f.p});c.update(.8,{...f.p});assert.equal(c.enemies[0].marks.length,5);
+ const points=c.enemies[0].targets.map(p=>({...p}));f.p.y+=80;c.update(0,{...f.p});assert.equal(JSON.stringify(c.enemies[0].targets),JSON.stringify(points));
+ c.update(.81,{...f.p});assert.equal(c.hazards.filter(h=>h.kind==='bloom').length,5);
 });
 test('full three-room run: defeat all roles, collect fragments, win, advance, and restart a new run',()=>{
  const campaign=new Campaign();const kinds=new Set();
@@ -308,7 +316,7 @@ test('holding E across a room load does not immediately consume the new charge',
 });
 test('enemy aim telegraph is clipped by cover and remains unchanged while time is stopped',()=>{
  const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);f.make('Wall',570,360,20,120);c.update(.45,{...f.p});
- const marker=c.enemies[0].marker;assert.equal(marker.isVisible,true);assert.ok(marker.width<=22);assert.ok(marker.x-marker.width/2>=580-1e-8);
+ const marker=c.enemies[0].marker;assert.equal(marker.isVisible,true);assert.ok(marker.width<=40);assert.ok(marker.height>=20);assert.ok(marker.x-marker.width/2>=584-1e-8);
  const before=[marker.x,marker.y,marker.width,marker.angle];for(let i=0;i<100;i++)c.update(0,{...f.p});assert.deepEqual([marker.x,marker.y,marker.width,marker.angle],before);
 });
 
@@ -327,4 +335,73 @@ test('neon effects run six frames with additive blend and oblique aspect, then d
  assert.equal(s.blendMode,'additive');assert.ok(s.height<s.width);effects.update(.1);assert.equal(f.runtime.objects.CombatFx.instances.length,0);
  const obj=JSON.parse(fs.readFileSync('objectTypes/CombatFx.json'));for(const anim of obj.animations.items)assert.equal(anim.frames.length,6);
  assert.equal(JSON.parse(fs.readFileSync('objectTypes/Projectile.json')).animations.items.find(a=>a.name==='Core').frames.length,6);
+});
+
+const {Menu}=load('src/ui/Menu.ts');
+test('title/settings/quit are functional states, settings survive pause and resume',()=>{
+ const m=new Menu('title');assert.equal(m.playing,false);assert.match(m.html(),/Начать/);assert.match(m.html(),/Настройки/);assert.match(m.html(),/Выход/);
+ m.handle('settings');m.handle('flashes');m.handle('guides');assert.equal(m.flashes,false);assert.equal(m.guides,false);m.handle('back');assert.equal(m.page,'title');
+ m.handle('start');m.escape();assert.equal(m.page,'pause');m.handle('settings');m.handle('back');assert.equal(m.page,'pause');m.handle('resume');assert.equal(m.playing,true);
+ m.handle('quit');assert.equal(m.page,'exit');assert.equal(m.playing,false);assert.match(m.html(),/Сессия остановлена/);
+});
+test('menu freezes combat and Escape resumes without attacking',()=>{
+ const f=fixture(),m=new Menu('title'),g=new GameController(f.runtime,new Campaign(),m);g.attack();
+ for(let i=0;i<100;i++){g.beforeTick();g.tick();}assert.equal(g.state.attacks,0);assert.equal(g.state.worldSeconds,0);assert.equal(f.runtime.timeScale,0);
+ m.handle('start');f.keys.add('Escape');g.beforeTick();g.tick();assert.equal(m.page,'pause');f.keys.delete('Escape');g.beforeTick();g.tick();f.keys.add('Escape');g.beforeTick();g.tick();assert.equal(m.playing,true);
+});
+test('large idle enemy bodies never cause proximity damage, but a telegraphed hunter lunge does',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);f.p.x=600;f.p.y=360;
+ for(let i=0;i<100;i++)c.update(0,{...f.p});assert.equal(s.hp,3);
+ const room={...ROOMS[0],enemies:[{kind:'hunter',x:140,y:360,hp:2}]},h=new CombatSystem(f.runtime,s,room);f.p.x=180;h.update(1.8,{...f.p});assert.equal(s.hp,3);h.update(.2,{...f.p});assert.equal(s.hp,2);
+});
+test('real damage changes hearts, tints the hero and displays a short edge vignette',()=>{
+ const f=fixture(),g=new GameController(f.runtime);g.state.damage();g.beforeTick();g.tick();
+ assert.equal(g.state.hp,2);assert.deepEqual(Array.from(f.runtime.objects.HeroVisual.getFirstInstance().colorRgb),[1,.25,.4]);assert.match(f.runtime.objects.HowToControl.getFirstInstance().htmlContent,/inset 0 0 90px/);
+ for(let i=0;i<30;i++){g.beforeTick();g.tick();}assert.deepEqual(Array.from(f.runtime.objects.HeroVisual.getFirstInstance().colorRgb),[1,1,1]);
+});
+test('designer running sheets are now used without changing their frame size or anchor',()=>{
+ const obj=JSON.parse(fs.readFileSync('objectTypes/HeroVisual.json'));
+ for(const dir of ['Up','Down','Left','Right'])for(const f of obj.animations.items.find(a=>a.name==='Walk'+dir).frames){assert.equal(f.width,64);assert.equal(f.height,64);assert.equal(f.originX,.5);assert.equal(f.originY,.5);}
+ const enemies=JSON.parse(fs.readFileSync('objectTypes/TestEnemy.json'));for(const name of ['Shooter','Hunter','Warden','Echo','Regent'])assert.ok(enemies.animations.items.find(a=>a.name===name));
+});
+
+test('enemy motion, wind-up and release use distinct poses, frozen world preserves the exact pose',()=>{
+ const {EnemyAnimator}=load('src/combat/EnemyAnimator.ts'),f=fixture(),a=new EnemyAnimator(),e=f.enemy;
+ a.update(e,'hunter',.1,true,false,0,Math.PI);assert.equal(e.animationName,'HunterWalk');assert.equal(e.isMirrored,true);assert.equal(e.angle,0);
+ a.update(e,'hunter',.2,true,false,0,Math.PI);assert.equal(e.animationFrame,1);
+ const pose=[e.animationName,e.animationFrame];a.update(e,'hunter',0,false,false,0,0);assert.deepEqual([e.animationName,e.animationFrame],pose);
+ a.update(e,'hunter',.1,false,true,0,0);assert.equal(e.animationName,'HunterWindup');
+ a.update(e,'hunter',.1,false,false,.4,0);assert.equal(e.animationName,'HunterAttack');assert.equal(e.animationFrame,0);
+ a.update(e,'hunter',.1,false,false,.1,0);assert.equal(e.animationFrame,1);
+});
+test('a shooter commits its aim before release and the attack no longer tracks the player',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.update(.45,{...f.p});const e=c.enemies[0],angle=e.angle;
+ f.p.y=100;c.update(.3,{...f.p});assert.equal(e.angle,angle);assert.equal(e.sprite.animationName,'ShooterWindup');
+ c.update(.25,{...f.p});assert.equal(f.runtime.objects.Projectile.getFirstInstance().angle,angle);assert.equal(e.sprite.animationName,'ShooterAttack');
+});
+test('Bloom sweep hurts only the warned front sector, respects cover and never damages during dt zero',()=>{
+ for(const mode of ['front','behind','cover','frozen']){
+  const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[2],enemies:[{kind:'warden',x:620,y:360,hp:8}]});
+  c.update(2.11,{...f.p});f.p.x=mode==='behind'?690:550;if(mode==='cover')f.make('Wall',580,360,20,100);
+  c.update(mode==='frozen'?0:.01,{...f.p});assert.equal(s.hp,mode==='front'?2:3,mode);
+ }
+});
+test('enemy flower VFX freeze exactly while player VFX can finish on the independent clock',()=>{
+ const f=fixture(),fx=new Effects(f.runtime);fx.flash(0,0,'Bloom',68,.6,0,true);const bloom=f.runtime.objects.CombatFx.getFirstInstance();
+ fx.flash(0,0,'Slash',100,.2);fx.update(.1,.1);const pose=[bloom.animationFrame,bloom.width,bloom.opacity];
+ for(let i=0;i<30;i++)fx.update(.1,0);assert.deepEqual([bloom.animationFrame,bloom.width,bloom.opacity],pose);assert.equal(f.runtime.objects.CombatFx.instances.length,1);
+ fx.update(.6,.6);assert.equal(f.runtime.objects.CombatFx.instances.length,0);
+});
+test('all five enemy/boss animation sets contain authored walk, anticipation and attack poses',()=>{
+ const obj=JSON.parse(fs.readFileSync('objectTypes/TestEnemy.json'));
+ for(const name of ['Shooter','Hunter','Warden','Echo','Regent']){
+  for(const [state,count] of [['Idle',2],['Walk',3],['Windup',1],['Attack',2]]){
+   const a=obj.animations.items.find(a=>a.name===name+state);assert.ok(a,name+state);assert.equal(a.frames.length,count);
+   for(const f of a.frames)assert.equal(f.useCollisionPoly,false);
+  }
+  const walk=fs.readFileSync(`images/testenemy-${name.toLowerCase()}walk-000.png`),attack=fs.readFileSync(`images/testenemy-${name.toLowerCase()}attack-000.png`);
+  assert.equal(walk.equals(attack),false,name+' poses must differ');
+ }
+ for(const name of ['Arrow','Petal'])assert.equal(JSON.parse(fs.readFileSync('objectTypes/Projectile.json')).animations.items.find(a=>a.name===name).frames.length,6);
+ const project=JSON.parse(fs.readFileSync('project.c3proj'));assert.equal(project.properties.fullscreenMode,'letterbox-scale');assert.equal(project.properties.fullscreenQuality,'high');
 });

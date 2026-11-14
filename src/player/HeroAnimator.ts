@@ -29,7 +29,7 @@ export class HeroAnimator {
         }
         this.attackQueued = false;
         const attacking = this.attackElapsed >= 0;
-        const name = attacking ? "Attack" + this.attackDirection : (moving ? "Walk" : "Breathe") + this.direction;
+        const name = attacking ? "Attack" + this.attackDirection : (moving ? "Walk" : "Idle") + this.direction;
         if (name !== this.animation) {
             visual.setAnimation(name);
             this.animation = name;
@@ -40,6 +40,6 @@ export class HeroAnimator {
         // These animations follow the independent player clock, not frozen world time.
         visual.animationSpeed = 0;
         visual.animationFrame = attacking ? Math.min(4, Math.floor(this.attackElapsed * 12))
-            : Math.floor(this.motionElapsed * (moving ? 8 : 4)) % 4;
+            : moving ? Math.floor(this.motionElapsed * 8) % 4 : 0;
     }
 }

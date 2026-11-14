@@ -18,6 +18,15 @@ export class TutorialController {
         }
         this.show();
     }
+    combatHint(attacks: number, pulses: number, enemies: number, fragments: number): void {
+        if (this.step !== 3) return;
+        const text = this.runtime.objects.TutorialText4.getFirstInstance();
+        if (text) text.text = attacks === 0 ? "ЛКМ — удар в сторону взгляда\nАтака запускает время. Подойди и ударь врага."
+            : pulses === 0 ? "E — временной импульс\nСбивает пули вокруг тебя. Победа вернёт заряд."
+            : enemies > 0 ? "Победи оставшихся врагов\nОстановись, оцени угрозу и выбери момент."
+            : fragments < 2 ? "Собери два голубых фрагмента\nЗатем войди в светящуюся арку справа."
+            : "Выход открыт\nДойди до светящейся арки справа.";
+    }
     private show(playing = true): void {
         TEXTS.forEach((name, index) => {
             const text = this.runtime.objects[name].getFirstInstance();

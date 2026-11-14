@@ -130,7 +130,7 @@
 					"type": "TestEnemy",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initial-animation": "ShooterIdle",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -161,8 +161,8 @@
 					"world": {
 						"x": 620,
 						"y": 360,
-						"width": 32,
-						"height": 32,
+						"width": 46,
+						"height": 46,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [
@@ -807,10 +807,10 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 24,
-						"y": 14,
-						"width": 822,
-						"height": 448,
+						"x": 0,
+						"y": 0,
+						"width": 854,
+						"height": 480,
 						"originX": 0,
 						"originY": 0,
 						"color": [
@@ -826,8 +826,8 @@
 					"properties": {
 						"text": "Используй WASD\nдля перемещения",
 						"enable-bbcode": true,
-						"font": "Arial",
-						"size": 18,
+						"font": "Georgia",
+						"size": 16,
 						"line-height": 0,
 						"bold": false,
 						"italic": false,
@@ -855,10 +855,10 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 130,
-						"y": 75,
-						"width": 600,
-						"height": 65,
+						"x": 170,
+						"y": 80,
+						"width": 514,
+						"height": 64,
 						"originX": 0,
 						"originY": 0,
 						"color": [
@@ -876,8 +876,8 @@
 					"properties": {
 						"text": "Остановись, чтобы заморозить время",
 						"enable-bbcode": true,
-						"font": "Arial",
-						"size": 18,
+						"font": "Georgia",
+						"size": 16,
 						"line-height": 0,
 						"bold": false,
 						"italic": false,
@@ -905,10 +905,10 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 130,
-						"y": 75,
-						"width": 600,
-						"height": 65,
+						"x": 170,
+						"y": 80,
+						"width": 514,
+						"height": 64,
 						"originX": 0,
 						"originY": 0,
 						"color": [
@@ -926,8 +926,8 @@
 					"properties": {
 						"text": "Зажми Space + WASD,\nчтобы выполнить рывок",
 						"enable-bbcode": true,
-						"font": "Arial",
-						"size": 18,
+						"font": "Georgia",
+						"size": 16,
 						"line-height": 0,
 						"bold": false,
 						"italic": false,
@@ -955,10 +955,10 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 130,
-						"y": 75,
-						"width": 600,
-						"height": 65,
+						"x": 170,
+						"y": 80,
+						"width": 514,
+						"height": 64,
 						"originX": 0,
 						"originY": 0,
 						"color": [
@@ -976,8 +976,8 @@
 					"properties": {
 						"text": "ЛКМ — удар · E — импульс\nПобеди врага, собери 2 фрагмента и найди выход",
 						"enable-bbcode": true,
-						"font": "Arial",
-						"size": 17,
+						"font": "Georgia",
+						"size": 16,
 						"line-height": 0,
 						"bold": false,
 						"italic": false,
@@ -1005,10 +1005,10 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 130,
-						"y": 75,
-						"width": 600,
-						"height": 80,
+						"x": 170,
+						"y": 80,
+						"width": 514,
+						"height": 64,
 						"originX": 0,
 						"originY": 0,
 						"color": [
