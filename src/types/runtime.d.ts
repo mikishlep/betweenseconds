@@ -9,8 +9,10 @@ interface Sprite {
  x: number; y: number; width: number; height: number; angle: number;
  dt: number; timeScale: number; opacity: number; isVisible: boolean;
  behaviors: { "8Направлений": Movement; "Синусоида": Sine };
+ colorRgb: [number, number, number]; blendMode: string;
  animationSpeed: number; animationFrame: number;
  setAnimation(name: string): void;
+ moveToTop(): void; moveToBottom(): void;
  destroy(): void;
 }
 interface ObjectType<T> {
@@ -22,7 +24,7 @@ interface IRuntime {
  objects: { Player: ObjectType<Sprite>; TestEnemy: ObjectType<Sprite>;
  Wall: ObjectType<Sprite>; Projectile: ObjectType<Sprite>;
  ProjectileGuide: ObjectType<Sprite>; TimeFragment: ObjectType<Sprite>; Exit: ObjectType<Sprite>;
- HeroVisual: ObjectType<Sprite>; TutorialText: ObjectType<Sprite>; TutorialText2: ObjectType<Sprite>; TutorialText3: ObjectType<Sprite>; TutorialText4: ObjectType<Sprite>;
+ ActorShadow: ObjectType<Sprite>; WallFace: ObjectType<Sprite>; ArenaFloor: ObjectType<Sprite>; CombatFx: ObjectType<Sprite>; CombatMarker: ObjectType<Sprite>; HeroVisual: ObjectType<Sprite>; TutorialText: ObjectType<Sprite>; TutorialText2: ObjectType<Sprite>; TutorialText3: ObjectType<Sprite>; TutorialText4: ObjectType<Sprite>;
  HowToControl: ObjectType<Hud> };
  keyboard: { isKeyDown(code: string): boolean };
  dtRaw: number; timeScale: number;

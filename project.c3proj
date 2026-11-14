@@ -79,7 +79,12 @@
 			"TutorialText2",
 			"TutorialText3",
 			"TutorialText4",
-			"HeroVisual"
+			"HeroVisual",
+			"ArenaFloor",
+			"CombatFx",
+			"CombatMarker",
+			"ActorShadow",
+			"WallFace"
 		],
 		"subfolders": []
 	},
@@ -222,8 +227,8 @@
 		"subfolders": []
 	},
 	"properties": {
-		"description": "Prototype 2: collect two time fragments and reach the exit.",
-		"version": "0.2.0.0",
+		"description": "Playable core: tutorial, three combat rooms, melee/parry, pulse, three enemy roles and a two-phase guardian.",
+		"version": "0.3.0.0",
 		"autoIncrementVersion": false,
 		"author": "",
 		"authorEmail": "",

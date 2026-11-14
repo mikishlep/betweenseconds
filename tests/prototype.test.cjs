@@ -12,14 +12,15 @@ const {segmentHit,relativeHit}=load('src/game/geometry.ts');
 const {GameController}=load('src/game/GameController.ts');
 const {CombatSystem}=load('src/game/CombatSystem.ts');
 function fixture(){
- const keys=new Set(), calls=[];
+ const keys=new Set(), calls=[];let drawOrder=0;
  const objects={};
- for(const name of ['Player','TestEnemy','Wall','Projectile','ProjectileGuide','TimeFragment','Exit','HowToControl','HeroVisual','TutorialText','TutorialText2','TutorialText3','TutorialText4']){
+ for(const name of ['Player','TestEnemy','Wall','Projectile','ProjectileGuide','TimeFragment','Exit','HowToControl','HeroVisual','TutorialText','TutorialText2','TutorialText3','TutorialText4','CombatFx','CombatMarker','ArenaFloor','ActorShadow','WallFace']){
   const instances=[];
   objects[name]={getFirstInstance:()=>instances[0]??null,getAllInstances:()=>[...instances],createInstance:(_,x,y)=>make(name,x,y),instances};
  }
  function make(name,x,y,width=28,height=28){
-  const o={x,y,width,height,angle:0,dt:1/60,timeScale:1,opacity:1,isVisible:true,htmlContent:'',animationSpeed:0,animationFrame:0,setAnimation(name){this.animationName=name;},behaviors:{},destroy(){const a=objects[name].instances;a.splice(a.indexOf(o),1);}};
+  const o={x,y,width,height,angle:0,dt:1/60,timeScale:1,opacity:1,isVisible:true,htmlContent:'',animationSpeed:0,animationFrame:0,setAnimation(name){this.animationName=name;},moveToTop(){this.drawOrder=++drawOrder;},moveToBottom(){this.drawOrder=-1;},behaviors:{},destroy(){const a=objects[name].instances;a.splice(a.indexOf(o),1);}};
+  if(name==='TestEnemy')o.behaviors['Синусоида']={phase:0,value:0};
   objects[name].instances.push(o);return o;
  }
  const p=make('Player',140,360);
@@ -29,7 +30,16 @@ function fixture(){
  make('HeroVisual',140,360,64,64);make('HowToControl',16,16);
  for(const name of ['TutorialText','TutorialText2','TutorialText3','TutorialText4'])make(name,0,0);make('TimeFragment',420,180,24,24);make('TimeFragment',900,540,24,24);
  const runtime={objects,keyboard:{isKeyDown:c=>keys.has(c)},timeScale:1,dtRaw:1/60,layout:{name:'Макет 1'},goToLayout:n=>calls.push(n),addEventListener(){}};
- return {runtime,p,enemy,exit,keys,calls,move,make};
+ return {runtime,p,get enemy(){return objects.TestEnemy.getFirstInstance();},exit,keys,calls,move,make};
+}
+function defeatAll(f,g){
+ let attempts=0;
+ while(f.runtime.objects.TestEnemy.getFirstInstance() && attempts++<30){
+  const enemy=f.runtime.objects.TestEnemy.getFirstInstance();f.p.x=enemy.x-65;f.p.y=enemy.y;f.keys.clear();f.keys.add('KeyD');
+  g.attack();g.beforeTick();g.tick();
+  for(let i=0;i<28;i++){g.beforeTick();g.tick();}
+ }
+ assert.equal(g.state.status,'playing');assert.equal(g.state.enemiesRemaining,0);
 }
 test('3 HP, world-time invulnerability, loss and terminal guard',()=>{
  const s=new GameState();s.damage();s.damage();assert.equal(s.hp,2);s.update(0);s.damage();assert.equal(s.hp,2);
@@ -77,8 +87,10 @@ test('projectile segment hits moving player, not just final endpoints',()=>{
 test('contact with frozen enemy costs HP',()=>{
  const f=fixture(),g=new GameController(f.runtime);f.p.x=620;g.beforeTick();g.tick();assert.equal(g.state.hp,2);g.beforeTick();g.tick();assert.equal(g.state.hp,2);
 });
-test('collect both fragments via swept paths then win and lock movement',()=>{
+test('exit stays locked until combat is cleared, then fragments and exit complete the room',()=>{
  const f=fixture(),g=new GameController(f.runtime);
+ f.p.x=1100;f.p.y=360;g.beforeTick();g.tick();assert.equal(g.state.status,'playing');
+ defeatAll(f,g);
  for(const [x,y] of [[420,180],[900,540],[1100,360]]){g.beforeTick();f.p.x=x;f.p.y=y;g.tick();}
  assert.equal(g.state.fragments,2);assert.equal(f.runtime.objects.TimeFragment.instances.length,0);assert.equal(f.exit.opacity,1);assert.equal(g.state.status,'won');assert.equal(f.move.isEnabled,false);assert.equal(f.runtime.timeScale,0);
 });
@@ -154,6 +166,7 @@ test('tutorial guards pickups and damage before training; win -> Enter -> arena,
  assert.equal(g.state.fragments,1); // dash ended within the first fragment's pickup area
  g.beforeTick();f.p.x=900;f.p.y=540;g.tick();assert.equal(g.state.fragments,2);
  g.beforeTick();f.p.x=420;f.p.y=180;g.tick();assert.equal(g.state.fragments,2);
+ defeatAll(f,g);
  g.beforeTick();f.p.x=1100;f.p.y=360;g.tick();assert.equal(g.state.status,'won');
  assert.match(f.runtime.objects.HowToControl.getFirstInstance().htmlContent,/ENTER/);
  f.keys.add('Enter');g.beforeTick();assert.ok(f.calls.includes('Макет 1'));
@@ -229,4 +242,89 @@ test('generated locomotion is separate from original art, with complete four-fra
    for(const f of anim.frames){assert.equal(f.width,64);assert.equal(f.height,64);assert.ok(f.originX>0&&f.originX<1);assert.ok(f.originY>0&&f.originY<1);}
   }
  }
+});
+
+const {PlayerActions}=load('src/combat/PlayerActions.ts');
+const {Campaign,ROOMS}=load('src/game/Rooms.ts');
+test('attacking while standing advances world time, rate-limits clicks, and returns to freeze',()=>{
+ const f=fixture(),g=new GameController(f.runtime);g.attack();g.beforeTick();g.tick();assert.equal(f.runtime.timeScale,1);assert.equal(g.state.attacks,1);
+ for(let i=0;i<3;i++){g.attack();g.beforeTick();g.tick();}assert.equal(g.state.attacks,1);
+ for(let i=0;i<25;i++){g.beforeTick();g.tick();}assert.equal(f.runtime.timeScale,0);
+});
+test('melee applies cone/range and wall occlusion; kills remove enemies and unlock the combat gate',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);
+ c.strike({x:560,y:360},Math.PI);assert.equal(c.enemies[0].hp,2);
+ const wall=f.make('Wall',590,360,10,100);c.strike({x:560,y:360},0);assert.equal(c.enemies[0].hp,2);wall.destroy();
+ c.strike({x:560,y:360},0);assert.equal(c.enemies[0].hp,1);c.strike({x:560,y:360},0);assert.equal(s.kills,1);assert.equal(s.enemiesRemaining,0);assert.equal(f.runtime.objects.TestEnemy.getAllInstances().length,0);
+ assert.doesNotThrow(()=>c.update(.1,{...f.p}));
+});
+test('melee deflects a frozen projectile before it reaches the player',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.update(1,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,1);
+ c.strike({x:560,y:360},0);assert.equal(f.runtime.objects.Projectile.instances.length,0);assert.equal(f.runtime.objects.ProjectileGuide.instances.length,0);assert.equal(s.deflected,1);
+});
+test('pulse has one charge, clears local bullets, cannot repeat empty, and a kill restores one charge',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.update(1,{...f.p});c.pulse({x:560,y:360});assert.equal(s.pulses,1);assert.equal(s.pulseCharge,0);assert.equal(f.runtime.objects.Projectile.instances.length,0);assert.equal(c.enemies[0].hp,1);
+ c.pulse({x:560,y:360});assert.equal(s.pulses,1);c.strike({x:560,y:360},0);assert.equal(s.pulseCharge,1);
+});
+test('E is edge-triggered and resumes time, holding does not spend another restored charge',()=>{
+ const f=fixture(),g=new GameController(f.runtime);f.keys.add('KeyE');g.beforeTick();g.tick();assert.equal(g.state.pulses,1);assert.equal(f.runtime.timeScale,1);
+ g.state.pulseCharge=1;for(let i=0;i<30;i++){g.beforeTick();g.tick();}assert.equal(g.state.pulses,1);assert.equal(g.state.pulseCharge,1);
+});
+test('hunter is blocked by cover even on a large step and freezes when world dt is zero',()=>{
+ const f=fixture(),s=new GameState(),room={...ROOMS[0],enemies:[{kind:'hunter',x:140,y:360,hp:2}]},c=new CombatSystem(f.runtime,s,room);f.p.x=400;f.make('Wall',200,360,20,200);
+ c.update(1,{...f.p});const e=c.enemies[0],x=e.sprite.x,t=e.timer;assert.ok(x<172);
+ for(let i=0;i<300;i++)c.update(0,{...f.p});assert.equal(e.sprite.x,x);assert.equal(e.timer,t);
+});
+test('warden has two phases and changes its ring from 8+1 to 12+1 bullets, telegraphs freeze',()=>{
+ const f=fixture(),s=new GameState(),room={...ROOMS[2],enemies:[{kind:'warden',x:620,y:360,hp:8}]},c=new CombatSystem(f.runtime,s,room);
+ c.update(1.5,{...f.p});assert.equal(c.enemies[0].marker.isVisible,true);const time=c.enemies[0].timer;c.update(0,{...f.p});assert.equal(c.enemies[0].timer,time);
+ c.update(.31,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,9);assert.equal(c.boss.phase,1);
+ for(let i=0;i<4;i++)c.strike({x:560,y:360},0);assert.equal(c.boss.phase,2);c.update(1.16,{...f.p});assert.equal(f.runtime.objects.Projectile.instances.length,13);assert.equal(s.deflected,9); // the melee strikes cleared the first ring
+});
+test('full three-room run: defeat all roles, collect fragments, win, advance, and restart a new run',()=>{
+ const campaign=new Campaign();const kinds=new Set();
+ for(let room=0;room<3;room++){
+  const f=fixture(),g=new GameController(f.runtime,campaign);for(const e of g.combat.enemies)kinds.add(e.kind);
+  defeatAll(f,g);f.keys.clear();
+  for(const [x,y] of [[420,180],[900,540],[1100,360]]){g.beforeTick();f.p.x=x;f.p.y=y;g.tick();}
+  assert.equal(g.state.status,'won');assert.equal(g.state.hp>0,true);assert.equal(g.state.exitOpen,true);
+  f.keys.add('Enter');g.beforeTick();assert.ok(f.calls.includes('Макет 1'));assert.equal(campaign.room,(room+1)%3);
+ }
+ assert.deepEqual([...kinds].sort(),['hunter','shooter','warden']);
+});
+test('R restarts the current campaign room and H resets the run before Tutorial',()=>{
+ const campaign=new Campaign();campaign.advance();let f=fixture(),g=new GameController(f.runtime,campaign);f.keys.add('KeyR');g.beforeTick();assert.equal(campaign.room,1);
+ f=fixture();g=new GameController(f.runtime,campaign);f.keys.add('KeyH');g.beforeTick();assert.equal(campaign.room,0);assert.ok(f.calls.includes('Tutorial'));
+});
+test('color/frozen floor switches with movement and attacks, while hero and threats retain their own art',()=>{
+ const f=fixture();const floor=f.make('ArenaFloor',600,360,1200,720);const g=new GameController(f.runtime);
+ assert.equal(floor.animationName,'Frozen');g.attack();g.beforeTick();g.tick();assert.equal(floor.animationName,'Color');
+ for(let i=0;i<30;i++){g.beforeTick();g.tick();}assert.equal(floor.animationName,'Frozen');assert.ok(f.runtime.objects.HeroVisual.getFirstInstance().animationName);
+});
+
+test('holding E across a room load does not immediately consume the new charge',()=>{
+ const f=fixture();f.keys.add('KeyE');const g=new GameController(f.runtime);g.beforeTick();g.tick();assert.equal(g.state.pulses,0);assert.equal(g.state.pulseCharge,1);
+ f.keys.delete('KeyE');g.beforeTick();g.tick();f.keys.add('KeyE');g.beforeTick();g.tick();assert.equal(g.state.pulses,1);
+});
+test('enemy aim telegraph is clipped by cover and remains unchanged while time is stopped',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);f.make('Wall',570,360,20,120);c.update(.45,{...f.p});
+ const marker=c.enemies[0].marker;assert.equal(marker.isVisible,true);assert.ok(marker.width<=22);assert.ok(marker.x-marker.width/2>=580-1e-8);
+ const before=[marker.x,marker.y,marker.width,marker.angle];for(let i=0;i<100;i++)c.update(0,{...f.p});assert.deepEqual([marker.x,marker.y,marker.width,marker.angle],before);
+});
+
+const {Depth}=load('src/world/Depth.ts');
+const {Effects}=load('src/world/Effects.ts');
+test('2.5D: floor stays behind shadows, actors sort behind/in front of raised cover, shadows clean up',()=>{
+ const f=fixture(),floor=f.make('ArenaFloor',600,360,1200,720),wall=f.make('Wall',140,400,28,140),depth=new Depth(f.runtime);
+ f.p.y=300;depth.update();const hero=f.runtime.objects.HeroVisual.getFirstInstance(),face=f.runtime.objects.WallFace.getFirstInstance();
+ assert.equal(floor.drawOrder,-1);assert.ok(hero.drawOrder<face.drawOrder);assert.equal(face.width,wall.width);assert.equal(face.height,12);
+ assert.equal(f.runtime.objects.ActorShadow.instances.length,2);f.p.y=600;depth.update();assert.ok(hero.drawOrder>face.drawOrder);
+ f.enemy.destroy();depth.update();assert.equal(f.runtime.objects.ActorShadow.instances.length,1);
+});
+test('neon effects run six frames with additive blend and oblique aspect, then destroy themselves',()=>{
+ const f=fixture(),effects=new Effects(f.runtime);effects.flash(140,360,'Slash',125,.6,0);const s=f.runtime.objects.CombatFx.getFirstInstance();
+ const frames=new Set([0]);for(let i=0;i<35;i++){effects.update(1/60);frames.add(s.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3,4,5]);
+ assert.equal(s.blendMode,'additive');assert.ok(s.height<s.width);effects.update(.1);assert.equal(f.runtime.objects.CombatFx.instances.length,0);
+ const obj=JSON.parse(fs.readFileSync('objectTypes/CombatFx.json'));for(const anim of obj.animations.items)assert.equal(anim.frames.length,6);
+ assert.equal(JSON.parse(fs.readFileSync('objectTypes/Projectile.json')).animations.items.find(a=>a.name==='Core').frames.length,6);
 });

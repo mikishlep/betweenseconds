@@ -7,6 +7,40 @@
 			"subLayers": [],
 			"instances": [
 				{
+					"type": "ArenaFloor",
+					"properties": {
+						"initially-visible": true,
+						"initial-animation": "Frozen",
+						"initial-frame": 0,
+						"enable-collisions": false,
+						"live-preview": false
+					},
+					"uid": 210,
+					"sid": 840000000000410,
+					"tags": "",
+					"instanceVariables": {},
+					"behaviors": {},
+					"materialSurfaceType": "smooth",
+					"showing": true,
+					"locked": false,
+					"world": {
+						"x": 600,
+						"y": 360,
+						"width": 1200,
+						"height": 720,
+						"originX": 0.5,
+						"originY": 0.5,
+						"color": [
+							1,
+							1,
+							1,
+							1
+						],
+						"z": 0,
+						"angle": 0
+					}
+				},
+				{
 					"type": "ProjectileGuide",
 					"properties": {
 						"initially-visible": true,
@@ -144,8 +178,8 @@
 				{
 					"type": "Wall",
 					"properties": {
-						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initially-visible": false,
+						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -168,9 +202,9 @@
 					"locked": false,
 					"world": {
 						"x": 600,
-						"y": 12,
+						"y": 50,
 						"width": 1200,
-						"height": 24,
+						"height": 100,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [
@@ -186,8 +220,8 @@
 				{
 					"type": "Wall",
 					"properties": {
-						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initially-visible": false,
+						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -210,9 +244,9 @@
 					"locked": false,
 					"world": {
 						"x": 600,
-						"y": 708,
+						"y": 690,
 						"width": 1200,
-						"height": 24,
+						"height": 60,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [
@@ -228,8 +262,8 @@
 				{
 					"type": "Wall",
 					"properties": {
-						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initially-visible": false,
+						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -251,9 +285,9 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 12,
+						"x": 24,
 						"y": 360,
-						"width": 24,
+						"width": 48,
 						"height": 720,
 						"originX": 0.5,
 						"originY": 0.5,
@@ -270,8 +304,8 @@
 				{
 					"type": "Wall",
 					"properties": {
-						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initially-visible": false,
+						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -293,9 +327,9 @@
 					"showing": true,
 					"locked": false,
 					"world": {
-						"x": 1188,
+						"x": 1176,
 						"y": 360,
-						"width": 24,
+						"width": 48,
 						"height": 720,
 						"originX": 0.5,
 						"originY": 0.5,
@@ -313,7 +347,7 @@
 					"type": "Wall",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -355,7 +389,7 @@
 					"type": "Wall",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Prototype",
+						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -499,7 +533,7 @@
 					"type": "Exit",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Animation 1",
+						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -551,6 +585,142 @@
 						"y": 360,
 						"width": 64,
 						"height": 64,
+						"originX": 0.5,
+						"originY": 0.5,
+						"color": [
+							1,
+							1,
+							1,
+							1
+						],
+						"z": 0,
+						"angle": 0
+					}
+				},
+				{
+					"type": "CombatFx",
+					"properties": {
+						"initially-visible": true,
+						"initial-animation": "Slash",
+						"initial-frame": 0,
+						"enable-collisions": false,
+						"live-preview": false
+					},
+					"uid": 211,
+					"sid": 840000000000411,
+					"tags": "",
+					"instanceVariables": {},
+					"behaviors": {},
+					"materialSurfaceType": "smooth",
+					"showing": true,
+					"locked": false,
+					"world": {
+						"x": -300,
+						"y": -300,
+						"width": 64,
+						"height": 64,
+						"originX": 0.5,
+						"originY": 0.5,
+						"color": [
+							1,
+							1,
+							1,
+							1
+						],
+						"z": 0,
+						"angle": 0
+					}
+				},
+				{
+					"type": "CombatMarker",
+					"properties": {
+						"initially-visible": true,
+						"initial-animation": "Ring",
+						"initial-frame": 0,
+						"enable-collisions": false,
+						"live-preview": false
+					},
+					"uid": 212,
+					"sid": 840000000000412,
+					"tags": "",
+					"instanceVariables": {},
+					"behaviors": {},
+					"materialSurfaceType": "smooth",
+					"showing": true,
+					"locked": false,
+					"world": {
+						"x": -350,
+						"y": -350,
+						"width": 64,
+						"height": 64,
+						"originX": 0.5,
+						"originY": 0.5,
+						"color": [
+							1,
+							1,
+							1,
+							1
+						],
+						"z": 0,
+						"angle": 0
+					}
+				},
+				{
+					"type": "ActorShadow",
+					"properties": {
+						"initially-visible": true,
+						"initial-animation": "Shadow",
+						"initial-frame": 0,
+						"enable-collisions": false,
+						"live-preview": false
+					},
+					"uid": 250,
+					"sid": 850000000000410,
+					"tags": "",
+					"instanceVariables": {},
+					"behaviors": {},
+					"materialSurfaceType": "smooth",
+					"showing": true,
+					"locked": false,
+					"world": {
+						"x": -400,
+						"y": -400,
+						"width": 64,
+						"height": 32,
+						"originX": 0.5,
+						"originY": 0.5,
+						"color": [
+							1,
+							1,
+							1,
+							1
+						],
+						"z": 0,
+						"angle": 0
+					}
+				},
+				{
+					"type": "WallFace",
+					"properties": {
+						"initially-visible": true,
+						"initial-animation": "Stone",
+						"initial-frame": 0,
+						"enable-collisions": false,
+						"live-preview": false
+					},
+					"uid": 251,
+					"sid": 850000000000411,
+					"tags": "",
+					"instanceVariables": {},
+					"behaviors": {},
+					"materialSurfaceType": "smooth",
+					"showing": true,
+					"locked": false,
+					"world": {
+						"x": -470,
+						"y": -400,
+						"width": 64,
+						"height": 16,
 						"originX": 0.5,
 						"originY": 0.5,
 						"color": [
