@@ -14,19 +14,20 @@ const {CombatSystem}=load('src/game/CombatSystem.ts');
 function fixture(){
  const keys=new Set(), calls=[];
  const objects={};
- for(const name of ['Player','TestEnemy','Wall','Projectile','ProjectileGuide','TimeFragment','Exit','HowToControl']){
+ for(const name of ['Player','TestEnemy','Wall','Projectile','ProjectileGuide','TimeFragment','Exit','HowToControl','HeroVisual','TutorialText','TutorialText2','TutorialText3','TutorialText4']){
   const instances=[];
   objects[name]={getFirstInstance:()=>instances[0]??null,getAllInstances:()=>[...instances],createInstance:(_,x,y)=>make(name,x,y),instances};
  }
  function make(name,x,y,width=28,height=28){
-  const o={x,y,width,height,angle:0,dt:1/60,timeScale:1,opacity:1,isVisible:true,htmlContent:'',behaviors:{},destroy(){const a=objects[name].instances;a.splice(a.indexOf(o),1);}};
+  const o={x,y,width,height,angle:0,dt:1/60,timeScale:1,opacity:1,isVisible:true,htmlContent:'',animationSpeed:0,animationFrame:0,setAnimation(name){this.animationName=name;},behaviors:{},destroy(){const a=objects[name].instances;a.splice(a.indexOf(o),1);}};
   objects[name].instances.push(o);return o;
  }
  const p=make('Player',140,360);
  const move=p.behaviors['8Направлений']={vectorX:0,vectorY:0,isEnabled:true,maxSpeed:220,acceleration:1800,deceleration:1800,simulateControl(c){calls.push(c);}};
  const enemy=make('TestEnemy',620,360,32,32);enemy.behaviors['Синусоида']={phase:0,value:0};
  const exit=make('Exit',1100,360,48,72);
- make('HowToControl',16,16);make('TimeFragment',420,180,24,24);make('TimeFragment',900,540,24,24);
+ make('HeroVisual',140,360,64,64);make('HowToControl',16,16);
+ for(const name of ['TutorialText','TutorialText2','TutorialText3','TutorialText4'])make(name,0,0);make('TimeFragment',420,180,24,24);make('TimeFragment',900,540,24,24);
  const runtime={objects,keyboard:{isKeyDown:c=>keys.has(c)},timeScale:1,dtRaw:1/60,layout:{name:'Макет 1'},goToLayout:n=>calls.push(n),addEventListener(){}};
  return {runtime,p,enemy,exit,keys,calls,move,make};
 }
@@ -92,7 +93,7 @@ test('compiled entry registers one listener pair, creates fresh game on every re
 });
 test('project references, assets, UID/SID, two layers and Free footprint',()=>{
  const p=JSON.parse(fs.readFileSync('project.c3proj'));
- assert.equal(p.layouts.items.length,1);assert.equal(p.rootFileFolders.script.items.length,1);
+ assert.deepEqual(p.layouts.items,["Tutorial","Макет 1"]);assert.equal(p.firstLayout,"Tutorial");assert.equal(p.rootFileFolders.script.items.length,1);
  const layout=JSON.parse(fs.readFileSync('layouts/Макет 1.json'));assert.equal(layout.layers.length,2);
  const instances=layout.layers.flatMap(l=>l.instances);assert.equal(instances.filter(o=>o.type==='TimeFragment').length,2);
  assert.equal(new Set(instances.map(o=>o.uid)).size,instances.length);assert.equal(new Set(instances.map(o=>o.sid)).size,instances.length);
@@ -132,4 +133,66 @@ test('direction arrow and guide retain direction while frozen and clean up toget
 test('direction guide is clipped at a wall ahead',()=>{
  const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);f.make('Wall',570,360,20,140);c.update(1,{...f.p});
  const guide=f.runtime.objects.ProjectileGuide.getFirstInstance();assert.ok(guide.width<50);assert.ok(guide.x-guide.width/2>=580-1e-8);
+});
+
+const {TutorialController}=load('src/game/TutorialController.ts');
+const {HeroAnimator}=load('src/player/HeroAnimator.ts');
+test('tutorial needs movement, real stop and moving dash; Space cannot skip steps',()=>{
+ const f=fixture(),t=new TutorialController(f.runtime),visible=()=>['TutorialText','TutorialText2','TutorialText3','TutorialText4'].map(n=>f.runtime.objects[n].getFirstInstance().isVisible);
+ f.keys.add('Space');t.update(0,1,true,true);assert.deepEqual(visible(),[true,false,false,false]);
+ t.update(40,1/60,false,true);assert.deepEqual(visible(),[false,true,false,false]);
+ t.update(0,.19,false,true);assert.equal(t.readyForObjective,false);t.update(0,.02,false,true);assert.deepEqual(visible(),[false,false,true,false]);
+ t.update(0,1,true,true);assert.equal(t.readyForObjective,false);t.update(10,1/60,true,true);assert.equal(t.readyForObjective,true);assert.deepEqual(visible(),[false,false,false,true]);
+ t.update(0,0,false,false);assert.deepEqual(visible(),[false,false,false,false]);
+});
+test('tutorial guards pickups and damage before training; win -> Enter -> arena, R stays on current layout',()=>{
+ const f=fixture();f.runtime.layout.name='Tutorial';const g=new GameController(f.runtime);
+ g.beforeTick();f.p.x=420;f.p.y=180;g.tick();assert.equal(g.state.fragments,0);
+ for(let i=0;i<14;i++){g.beforeTick();g.tick();}
+ f.keys.add('Space');f.keys.add('KeyD');g.beforeTick();f.p.x+=10;g.tick();
+ assert.equal(f.runtime.objects.TutorialText4.getFirstInstance().isVisible,true);
+ assert.equal(g.state.fragments,1); // dash ended within the first fragment's pickup area
+ g.beforeTick();f.p.x=900;f.p.y=540;g.tick();assert.equal(g.state.fragments,2);
+ g.beforeTick();f.p.x=420;f.p.y=180;g.tick();assert.equal(g.state.fragments,2);
+ g.beforeTick();f.p.x=1100;f.p.y=360;g.tick();assert.equal(g.state.status,'won');
+ assert.match(f.runtime.objects.HowToControl.getFirstInstance().htmlContent,/ENTER/);
+ f.keys.add('Enter');g.beforeTick();assert.ok(f.calls.includes('Макет 1'));
+});
+test('Enter cannot skip an unfinished tutorial and R creates a fresh tutorial',()=>{
+ const f=fixture();f.runtime.layout.name='Tutorial';let g=new GameController(f.runtime);f.keys.add('Enter');g.beforeTick();assert.equal(f.calls.includes('Макет 1'),false);
+ f.keys.add('KeyR');g.beforeTick();assert.ok(f.calls.includes('Tutorial'));
+ g=new GameController(f.runtime);assert.equal(g.state.hp,3);assert.equal(g.state.fragments,0);assert.equal(f.runtime.objects.TutorialText.getFirstInstance().isVisible,true);
+});
+test('hero faces four directions, plays five attack frames and keeps collider size',()=>{
+ const f=fixture(),h=new HeroAnimator(f.runtime),visual=f.runtime.objects.HeroVisual.getFirstInstance();
+ for(const [key,dir] of [['KeyW','Up'],['KeyD','Right'],['KeyA','Left'],['KeyS','Down']]){f.keys.clear();f.keys.add(key);h.update(true);assert.equal(visual.animationName,'Idle'+dir);}
+ h.requestAttack();h.update(true);assert.equal(visual.animationName,'AttackDown');assert.equal(visual.animationFrame,0);
+ const frames=new Set([0]);for(let i=0;i<32;i++){h.update(true);frames.add(visual.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3,4]);
+ h.update(true);assert.equal(visual.animationName,'IdleDown');assert.equal(f.p.width,28);assert.equal(f.p.height,28);assert.equal(f.p.isVisible,false);
+});
+test('hero attack preview runs during world pause but freezes on terminal screen',()=>{
+ const f=fixture(),h=new HeroAnimator(f.runtime),v=f.runtime.objects.HeroVisual.getFirstInstance();f.runtime.timeScale=0;h.requestAttack();h.update(true);
+ for(let i=0;i<7;i++)h.update(true);assert.ok(v.animationFrame>0);const frame=v.animationFrame;for(let i=0;i<60;i++)h.update(false);assert.equal(v.animationFrame,frame);
+});
+test('compiled entry safely ignores a layout without gameplay instances',()=>{
+ const listeners={},empty={getFirstInstance:()=>null,getAllInstances:()=>[]};const runtime={objects:new Proxy({},{get:()=>empty}),addEventListener:(n,cb)=>listeners[n]=cb};
+ vm.runInNewContext(esbuild.transformSync(fs.readFileSync('scripts/main.js','utf8'),{format:'cjs'}).code,{module:{exports:{}},exports:{},runOnStartup:cb=>cb(runtime)});
+ assert.doesNotThrow(()=>{listeners.beforeanylayoutstart();listeners.pretick();listeners.tick();});
+});
+test('both playable layouts have consistent hero/logic instances, unique IDs and no legacy tutorial events',()=>{
+ const uids=new Set(),sids=new Set();for(const name of ['Tutorial','Макет 1']){
+ const l=JSON.parse(fs.readFileSync(`layouts/${name}.json`));assert.equal(l.layers.length,2);const instances=l.layers.flatMap(l=>l.instances);
+ for(const type of ['HeroVisual','Player','TestEnemy','Exit','HowToControl'])assert.equal(instances.filter(i=>i.type===type).length,1);
+ const player=instances.find(i=>i.type==='Player');assert.equal(player.properties['initially-visible'],false);assert.equal(player.world.width,28);
+ for(const i of instances){assert.ok(!uids.has(i.uid));uids.add(i.uid);assert.ok(!sids.has(i.sid));sids.add(i.sid);}
+ }assert.equal(JSON.parse(fs.readFileSync('eventSheets/TutorialEvents.json')).events.length,0);
+});
+
+test('left click triggers one attack, right click does not, handlers stay single across restarts',()=>{
+ const f=fixture(),listeners={};f.runtime.addEventListener=(n,cb)=>(listeners[n]??=[]).push(cb);
+ vm.runInNewContext(esbuild.transformSync(fs.readFileSync('scripts/main.js','utf8'),{format:'cjs'}).code,{module:{exports:{}},exports:{},runOnStartup:cb=>cb(f.runtime)});
+ for(let i=0;i<5;i++)listeners.beforeanylayoutstart[0]();assert.equal(listeners.pointerdown.length,1);
+ const v=f.runtime.objects.HeroVisual.getFirstInstance();listeners.pointerdown[0]({button:2});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'IdleDown');
+ listeners.pointerdown[0]({button:0});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'AttackDown');
+ for(let i=0;i<35;i++){listeners.pretick[0]();listeners.tick[0]();}assert.equal(v.animationName,'IdleDown');
 });

@@ -5,6 +5,7 @@ export class PlayerController {
     private dashX = 0;
     private dashY = 0;
     constructor(private readonly runtime: IRuntime) {}
+    get isDashing(): boolean { return this.dashTime > 0; }
     get ready(): boolean { return this.dashCooldown === 0; }
 
     // Input must be supplied before Construct ticks EightDir and ScrollTo.
