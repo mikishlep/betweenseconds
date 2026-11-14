@@ -37,7 +37,7 @@ def validate():
  layouts=[json.loads(p.read_text())for p in (ROOT/'layouts').glob('*.json')if not p.name.endswith('.uistate.json')]
  assert len(layouts)==2 and all(len(l['layers'])==2 for l in layouts)
  assert len((ROOT/'scripts/main.js').read_text().splitlines())<250
- archive=ROOT/'dist/BetweenSeconds-Prototype6.c3p'
+ archive=ROOT/'dist/BetweenSeconds-Prototype7.c3p'
  with zipfile.ZipFile(archive)as z:
   assert z.testzip()is None
   for name in z.namelist():assert z.read(name)==(ROOT/name).read_bytes(),name

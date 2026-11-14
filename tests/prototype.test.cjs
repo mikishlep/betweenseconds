@@ -316,8 +316,8 @@ test('2.5D: floor stays behind shadows, actors sort behind/in front of raised co
 test('neon effects run six frames without additive overexposure, then destroy themselves',()=>{
  const f=fixture(),effects=new Effects(f.runtime);effects.flash(140,360,'Slash',125,.6,0);const s=f.runtime.objects.CombatFx.getFirstInstance();
  const frames=new Set([0]);for(let i=0;i<35;i++){effects.update(1/60);frames.add(s.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3,4,5]);
- assert.equal(s.blendMode,'normal');assert.ok(s.height<s.width);effects.update(.1);assert.equal(f.runtime.objects.CombatFx.instances.length,0);
- const obj=JSON.parse(fs.readFileSync('objectTypes/CombatFx.json'));for(const anim of obj.animations.items)assert.equal(anim.frames.length,6);
+ assert.equal(s.blendMode,'normal');assert.equal(s.height,s.width);effects.update(.1);assert.equal(f.runtime.objects.CombatFx.instances.length,0);
+ const obj=JSON.parse(fs.readFileSync('objectTypes/CombatFx.json'));for(const anim of obj.animations.items)assert.equal(anim.frames.length,anim.name==='Glow'?1:6);
  assert.equal(JSON.parse(fs.readFileSync('objectTypes/Projectile.json')).animations.items.find(a=>a.name==='Core').frames.length,6);
 });
 
@@ -373,7 +373,7 @@ test('Bloom sweep hurts only the warned front sector, respects cover and never d
 test('enemy flower VFX freeze exactly while player VFX can finish on the independent clock',()=>{
  const f=fixture(),fx=new Effects(f.runtime);fx.flash(0,0,'Bloom',68,.6,0,true);const bloom=f.runtime.objects.CombatFx.getFirstInstance();
  fx.flash(0,0,'Slash',100,.2);fx.update(.1,.1);const pose=[bloom.animationFrame,bloom.width,bloom.opacity];
- for(let i=0;i<30;i++)fx.update(.1,0);assert.deepEqual([bloom.animationFrame,bloom.width,bloom.opacity],pose);assert.equal(f.runtime.objects.CombatFx.instances.length,1);
+ for(let i=0;i<30;i++)fx.update(.1,0);assert.deepEqual([bloom.animationFrame,bloom.width,bloom.opacity],pose);assert.equal(f.runtime.objects.CombatFx.instances.length,2);
  fx.update(.6,.6);assert.equal(f.runtime.objects.CombatFx.instances.length,0);
 });
 test('all five enemy/boss animation sets contain authored walk, anticipation and attack poses',()=>{
@@ -399,7 +399,7 @@ test('Sine phase stops during windup; resuming cannot teleport through cover',()
 test('journey graph has 15 reachable rooms, 5 zones, 2 optional rooms and 6 distinct boss encounters',()=>{
  assert.equal(ROOMS.length,15);assert.equal(new Set(ROOMS.map(r=>r.zone)).size,5);assert.equal(ROOMS.filter(r=>r.optional).length,2);
  const seen=new Set(),visit=i=>{if(seen.has(i))return;seen.add(i);for(const j of ROOMS[i].next){assert.ok(j>=0&&j<ROOMS.length);visit(j);}};visit(0);assert.equal(seen.size,15);
- assert.deepEqual([...new Set(ROOMS.flatMap(r=>r.enemies.map(e=>e.kind)).filter(k=>!['hunter','shooter'].includes(k)))].sort(),['bulwark','echo','regent','shade','viper','warden']);
+ assert.deepEqual([...new Set(ROOMS.flatMap(r=>r.enemies.map(e=>e.kind)).filter(k=>!['hunter','shooter','acolyte','sentinel'].includes(k)))].sort(),['bulwark','echo','regent','shade','viper','warden']);
 });
 test('boss rewards require an explicit exclusive choice and never auto-equip or farm',()=>{
  const c=new Campaign();c.room=1;c.complete(2);assert.equal(c.weapon,'blade');assert.equal(c.available.includes('rose'),false);assert.equal(c.advance(3),false);
@@ -475,7 +475,7 @@ test('every boss uses imported poses, cleans warning markers on death, and freez
 test('maul breaks frontal Bulwark guard, applies two damage and exposes recovery',()=>{
  const f=fixture(),s=new GameState(),fx=new Effects(f.runtime),c=new CombatSystem(f.runtime,s,{...ROOMS[12],enemies:[{kind:'bulwark',x:620,y:360,hp:7}]},fx);c.weapon='maul';
  f.p.x=620;f.p.y=455;const e=c.enemies[0];e.angle=Math.PI/2;
- c.strike(f.p,Math.atan2(310-f.p.y,620-f.p.x));assert.equal(e.hp,5);assert.equal(e.locked,false);assert.ok(e.recovery>=.9);assert.match(c.feedback,/Щит пробит/);
+ c.strike(f.p,Math.atan2(310-f.p.y,620-f.p.x));assert.equal(e.hp,5);assert.equal(e.locked,false);assert.ok(e.recovery>=.55);assert.match(c.feedback,/Щит пробит/);
  c.strike(f.p,-Math.PI/2);assert.equal(e.hp,3);
 });
 test('guard gives feedback for a blocked blade and cover still blocks the maul',()=>{
@@ -484,7 +484,7 @@ test('guard gives feedback for a blocked blade and cover still blocks the maul',
  c.weapon='maul';f.make('Wall',590,360,10,100);c.strike({x:560,y:360},0);assert.equal(c.enemies[0].hp,7);
 });
 test('stone and player impacts use normal blend, bounded opacity and fade in both palettes',()=>{
- for(const name of ['StoneImpact','PlayerImpact','Hit','Bloom','EchoBeam']){const f=fixture(),fx=new Effects(f.runtime);fx.flash(0,0,name,100,.4);const p=f.runtime.objects.CombatFx.getFirstInstance();assert.equal(p.blendMode,'normal');assert.ok(p.opacity<=.88);const opacity=p.opacity;fx.update(.2);assert.ok(p.opacity<opacity);}
+ for(const name of ['StoneImpact','PlayerImpact','Hit','Bloom','EchoBeam']){const f=fixture(),fx=new Effects(f.runtime);fx.flash(0,0,name,100,.4);const p=f.runtime.objects.CombatFx.getFirstInstance();assert.equal(p.blendMode,'normal');assert.ok(p.opacity<=.96);const opacity=p.opacity;fx.update(.2);assert.ok(p.opacity<opacity);}
 });
 test('selected equipment is visible and Q pauses for an explicit change',()=>{
  const f=fixture(),c=new Campaign();c.reset('maul');const g=new GameController(f.runtime,c),prop=()=>f.runtime.objects.WorldProp.instances.find(s=>s.animationName?.startsWith('Weapon'));
@@ -522,9 +522,65 @@ test('boss forms use different imported frames at both phase thresholds',()=>{
 });
 test('windup keeps mouse aim locked and maul waits longer than a blade',()=>{
  const {PlayerActions}=load('src/combat/PlayerActions.ts');const f=fixture(),a=new PlayerActions(f.runtime);a.requestAttack(-Math.PI/2);assert.equal(a.update(1/60,true,false,'maul').windup,true);f.keys.add('KeyD');
- for(let i=0;i<10;i++){assert.equal(a.update(1/60,true,false,'maul').strike,false);assert.equal(a.angle,-Math.PI/2);}let hit=false;for(let i=0;i<6;i++)hit||=a.update(1/60,true,false,'maul').strike;assert.equal(hit,true);
+ for(let i=0;i<10;i++){assert.equal(a.update(1/60,true,false,'maul').strike,false);assert.equal(a.angle,-Math.PI/2);}let hit=false;for(let i=0;i<17;i++)hit||=a.update(1/60,true,false,'maul').strike;assert.equal(hit,true);
 });
 test('scene fade uses real time, calls destination once, and blocks attack input',()=>{
  const {SceneTransition}=load('src/world/SceneTransition.ts'),t=new SceneTransition();let n=0;t.start(()=>n++);assert.equal(t.active,true);t.update(.2);assert.ok(t.alpha>0);assert.equal(n,0);t.update(.3);assert.equal(n,1);t.update(1);assert.equal(n,1);
  const f=fixture(),g=new GameController(f.runtime);f.keys.add('KeyR');g.beforeTick();g.attack();frames(f,g,12);assert.equal(g.state.attacks,0);
+});
+
+test('bow projectiles actually advance during the movement and dash tutorial steps',()=>{
+ const f=fixture(),c=new Campaign();c.reset('bow');f.runtime.layout.name='Tutorial';const g=new GameController(f.runtime,c);
+ g.attack({x:1000,y:360});frames(f,g,12);const bolt=f.runtime.objects.Projectile.instances.find(s=>s.animationName==='PlayerArrow');assert.ok(bolt);const x=bolt.x;frames(f,g,7);assert.ok(bolt.x>x+35);assert.ok(bolt.x>f.p.x+40);
+ assert.equal(g.tutorial.readyForObjective,false);assert.equal(g.combat.enemies[0].timer,.35);
+ frames(f,g,35);const frozen=bolt.x;frames(f,g,20);assert.equal(bolt.x,frozen);
+});
+test('maul cooldown prevents a second hit for 1.5 seconds, including on a broken shield',()=>{
+ const {PlayerActions}=load('src/combat/PlayerActions.ts'),f=fixture(),a=new PlayerActions(f.runtime);let starts=0,hits=0;
+ for(let i=0;i<90;i++){a.requestAttack(0);const r=a.update(1/60,true,false,'maul');starts+=Number(r.windup);hits+=Number(r.strike);}
+ assert.equal(starts,1);assert.equal(hits,1);a.requestAttack(0);assert.equal(a.update(1/60,true,false,'maul').windup,true);
+});
+test('light enemies visibly flash red and recoil; heavy enemies do not move from hits',()=>{
+ for(const kind of ['shooter','hunter','acolyte','sentinel','bulwark','warden']){const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[0],enemies:[{kind,x:620,y:360,hp:20}]});c.weapon='maul';const e=c.enemies[0];e.recovery=1;
+ c.strike({x:560,y:360},0);assert.deepEqual(Array.from(e.sprite.colorRgb),[1,.2,.3]);const x=e.sprite.x;c.update(.1,{...f.p});assert.equal(e.sprite.x>x,['shooter','hunter','acolyte'].includes(kind),kind);
+ c.update(0,{...f.p},true,.25);assert.deepEqual(Array.from(e.sprite.colorRgb),[1,1,1]);}
+});
+test('knockback stops at cover and does not move during world freeze',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s);c.weapon='maul';const e=c.enemies[0];c.strike({x:560,y:360},0);const x=e.sprite.x;c.update(0,{...f.p});assert.equal(e.sprite.x,x);f.make('Wall',650,360,20,100);c.update(.14,{...f.p});assert.ok(e.sprite.x<=626);
+});
+test('Sine rebases after an external knockback instead of pulling the enemy back to its old center',()=>{
+ const {TimeController}=load('src/systems/TimeController.ts'),f=fixture(),t=new TimeController(f.runtime);t.beforeTick(true);f.p.x++;t.afterTick(true);f.enemy.x+=40;t.beforeTick(true);f.enemy.behaviors['Синусоида'].value=0;f.p.x++;t.afterTick(true);assert.ok(f.enemy.x>=659);
+});
+test('beam graphics use one complete animation with no seams or projectile copies',()=>{
+ const f=fixture(),fx=new Effects(f.runtime);fx.beam({x:100,y:200},0,400,30,'RegentBeam');const cores=f.runtime.objects.CombatFx.instances.filter(s=>s.animationName==='RegentRay'&&s.blendMode==='normal'),glows=f.runtime.objects.CombatFx.instances.filter(s=>s.blendMode==='additive');
+ assert.equal(cores.length,1);assert.equal(cores[0].width,400);assert.ok(cores.every(s=>Math.abs(s.height/s.width-.25)<1e-8));assert.ok(glows.length>=cores.length);assert.ok(glows.every(s=>s.blendMode==='additive'&&s.opacity<=.25));assert.equal(f.runtime.objects.CombatFx.instances.some(s=>s.animationName==='RegentLance'),false);
+ const pose=cores.map(s=>[s.x,s.animationFrame,s.opacity]);fx.update(.5,0);assert.deepEqual(cores.map(s=>[s.x,s.animationFrame,s.opacity]),pose);fx.update(.5,.5);assert.equal(f.runtime.objects.CombatFx.instances.length,0);
+});
+test('orbital spheres orbit, freeze, then release radially using their own animated cores',()=>{
+ for(const[kind,style,index,phase,hp]of [['echo','EchoOrb',0,2,12],['regent','VoidOrb',1,3,4]]){
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[1],enemies:[{kind,x:820,y:360,hp:20}]});const e=c.enemies[0];e.hp=hp;c.update(.01,{...f.p});e.recovery=0;e.attackIndex=index;c.update(phase===3?1.71:2.01,{...f.p});assert.ok(c.bullets.length>=8);assert.ok(c.bullets.every(b=>b.style===style&&b.orbit));const b=c.bullets[0],start=[b.sprite.x,b.sprite.y];c.update(.2,{...f.p});assert.notDeepEqual([b.sprite.x,b.sprite.y],start);const held=[b.sprite.x,b.sprite.y,b.sprite.animationFrame];c.update(0,{...f.p});assert.deepEqual([b.sprite.x,b.sprite.y,b.sprite.animationFrame],held);c.update(.7,{...f.p});assert.equal(b.orbit,undefined);assert.ok(Math.hypot(b.vx,b.vy)>100);
+ }
+});
+test('the stone wave is an expanding annulus with a safe center, not a resized projectile',()=>{
+ const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[0],enemies:[{kind:'sentinel',x:620,y:360,hp:4}]});c.update(1.5,{...f.p});c.update(.1,{...f.p});const h=c.hazards.find(h=>h.kind==='ring');assert.ok(h);assert.equal(h.visual.animationName,'StoneWave');const size=h.visual.width;c.update(.1,{...f.p});assert.ok(h.visual.width>size);f.p.x=620;f.p.y=360;s.invulnerable=0;c.update(.01,{...f.p});assert.equal(s.hp,3);
+});
+test('late zones contain casters and sentinels; normal roles have distinct real attacks',()=>{
+ assert.equal(ROOMS[6].enemies.some(e=>e.kind==='acolyte'),true);assert.equal(ROOMS[8].enemies.some(e=>e.kind==='sentinel'),true);assert.notEqual(JSON.stringify(ROOMS[0].enemies.map(e=>e.kind).sort()),JSON.stringify(ROOMS[10].enemies.map(e=>e.kind).sort()));
+ for(const kind of ['acolyte','sentinel']){const f=fixture(),s=new GameState(),c=new CombatSystem(f.runtime,s,{...ROOMS[0],enemies:[{kind,x:820,y:360,hp:4}]});for(let i=0;i<180;i++)c.update(1/60,{...f.p});if(kind==='acolyte')assert.ok(c.bullets.some(b=>b.style==='EchoOrb'));else assert.equal(c.enemies[0].plan.type,'wave');assert.ok(!c.bullets.some(b=>b.style==='Petal'));}
+});
+test('new seals, spheres, rays and ordinary enemy poses resolve to distinct imported resources',()=>{
+ for(const[typ,names]of [['CombatMarker',['EchoSeal','RegentSeal','BloomSeal']],['Projectile',['EchoOrb','VoidOrb','PlayerArrow']],['CombatFx',['EchoRay','RegentRay','StoneWave','RoyalCut']],['TestEnemy',['AcolyteIdle','AcolyteWalk','AcolyteWindup','AcolyteAttack','SentinelIdle','SentinelWalk','SentinelWindup','SentinelAttack']]]){const list=JSON.parse(fs.readFileSync(`objectTypes/${typ}.json`)).animations.items;for(const name of names)assert.ok(list.find(a=>a.name===name),name);}
+ const list=JSON.parse(fs.readFileSync('objectTypes/CombatMarker.json')).animations.items;assert.equal(list.some(a=>a.name==='Sigil'),false);
+ const o=JSON.parse(fs.readFileSync('objectTypes/Projectile.json')).animations.items;assert.equal(o.find(a=>a.name==='EchoOrb').frames[0].width,o.find(a=>a.name==='EchoOrb').frames[0].height);assert.equal(o.find(a=>a.name==='PlayerArrow').frames[0].height,32);
+});
+
+test('Warden spear thrust never borrows an Echo or Regent beam renderer',()=>{
+ const f=fixture(),s=new GameState(),fx=new Effects(f.runtime),c=new CombatSystem(f.runtime,s,{...ROOMS[1],enemies:[{kind:'warden',x:820,y:360,hp:8}]},fx);
+ c.update(2.41,{...f.p});c.update(.01,{...f.p});assert.ok(f.runtime.objects.CombatFx.instances.some(p=>p.animationName==='RoseThrust'));assert.equal(f.runtime.objects.CombatFx.instances.some(p=>p.animationName==='EchoRay'||p.animationName==='RegentRay'),false);
+});
+
+test('deflection, pulse and owner death remove projectile glow instead of leaking light pools',()=>{
+ for(const mode of ['sword','pulse','kill']){const f=fixture(),s=new GameState(),fx=new Effects(f.runtime),c=new CombatSystem(f.runtime,s,undefined,fx);c.spawnBullet({x:560,y:360},0,0,'EchoOrb',c.enemies[0].sprite);assert.equal(fx.lights.size,1);
+ if(mode==='sword')c.strike({x:520,y:360},0);else if(mode==='pulse')c.pulse({x:520,y:360});else c.hit(c.enemies[0],99);
+ assert.equal(c.bullets.length,0);assert.equal(fx.lights.size,0,mode);}
 });

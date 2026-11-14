@@ -81,8 +81,10 @@ export class GameController{
   if(playing){
    this.tutorial?.update(Math.hypot(player.x-previous.x,player.y-previous.y),realDt,this.player.isDashing,true);
    if(this.pending.strike)this.combat.strike(player,this.actions.angle);if(this.pending.pulse)this.combat.pulse(player);this.pending={strike:false,pulse:false,windup:false};
-   if(!this.tutorial||this.tutorial.readyForObjective){
-    this.combat.update(dt,previous);this.world.update(dt,previous,player,this.state);
+   const ready=!this.tutorial||this.tutorial.readyForObjective;
+   this.combat.update(dt,previous,ready,realDt);
+   if(ready){
+    this.world.update(dt,previous,player,this.state);
     if(this.state.status==='playing'&&this.state.enemiesRemaining===0){
      if(!this.cleared){this.cleared=true;this.world.unlock();if(!this.tutorial)this.campaign.complete(this.state.hp);}
      if(!this.tutorial&&this.campaign.offer.length){this.menu.page='reward';this.actions.cancel();}

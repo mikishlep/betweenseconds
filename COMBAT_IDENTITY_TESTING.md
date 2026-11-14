@@ -1,3 +1,5 @@
+> Исторический отчёт Prototype 6. Текущая версия 0.7.1.0 и проверка новых скриншотов — в [NEON_ATTACKS_TESTING.md](NEON_ATTACKS_TESTING.md).
+
 # Prototype 6 — различимые атаки, выбор оружия и арки
 
 Дата: 14 ноября 2026. Версия Construct: **0.6.0.0**. Файлы изменены в `/Users/glebcejlonskij/Desktop/проекты/betweenseconds`.

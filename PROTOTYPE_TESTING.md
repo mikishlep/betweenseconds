@@ -1,6 +1,6 @@
-# Prototype 6 / Distinct Combat
+# Prototype 7 / Neon Combat
 
-Актуальные результаты: 82 автоматических теста, [COMBAT_IDENTITY_TESTING.md](COMBAT_IDENTITY_TESTING.md). Ниже — история, её старые описания не относятся к текущей сборке.
+Актуальные результаты: 94 автоматических теста, [NEON_ATTACKS_TESTING.md](NEON_ATTACKS_TESTING.md). Ниже — история прошлых сборок.
 
 # Between Seconds — проверка прототипов
 

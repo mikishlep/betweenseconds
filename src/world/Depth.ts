@@ -1,3 +1,4 @@
+import {isGroundLight} from './Effects';
 /** Shallow 2.5D rendering over an unchanged 2D collision plane. */
 export class Depth {
     private readonly heroShadow: Sprite;
@@ -24,6 +25,7 @@ export class Depth {
         const enemies = this.runtime.objects.TestEnemy.getAllInstances(), alive = new Set(enemies);
         for (const [enemy, shadow] of this.enemyShadows) if (!alive.has(enemy)) { shadow.destroy(); this.enemyShadows.delete(enemy); }
         this.runtime.objects.ArenaFloor.getFirstInstance()?.moveToBottom();
+        for(const s of this.runtime.objects.CombatFx.getAllInstances())if(isGroundLight(s))s.moveToTop();
         for (const marker of this.runtime.objects.CombatMarker.getAllInstances()) marker.moveToTop();
         this.heroShadow.x = player.x; this.heroShadow.y = player.y + 13; this.heroShadow.moveToTop();
         for (const enemy of enemies) {
@@ -39,7 +41,7 @@ export class Depth {
             ...(held?[{sprite:held,foot:player.y+14+(Math.sin(held.angle)<-.2?-1:1)}]:[]),
             ...this.runtime.objects.Exit.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.TimeFragment.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
-            ...this.runtime.objects.CombatFx.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height * 0.2 }))];
+            ...this.runtime.objects.CombatFx.getAllInstances().filter(sprite=>!isGroundLight(sprite)).map(sprite => ({ sprite, foot: sprite.y + sprite.height * 0.2 }))];
         ordered.sort((a, b) => a.foot - b.foot).forEach(entry => entry.sprite.moveToTop());
         for (const type of [this.runtime.objects.ProjectileGuide, this.runtime.objects.Projectile])
             for (const sprite of type.getAllInstances()) sprite.moveToTop();
