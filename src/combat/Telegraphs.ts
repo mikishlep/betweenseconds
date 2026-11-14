@@ -15,6 +15,9 @@ export class Telegraphs {
         marker.setAnimation("Sweep"); marker.x = origin.x; marker.y = origin.y;
         marker.width = range * 2; marker.height = range * 2; marker.angle = angle; marker.isVisible = true;
     }
+    sigil(marker:Sprite,origin:Point,radius:number,style='Sigil'):void {
+        marker.setAnimation(style);marker.x=origin.x;marker.y=origin.y;marker.width=radius*2;marker.height=radius*2;marker.angle=0;marker.isVisible=true;
+    }
     flower(marker: Sprite, origin: Point, radius: number): void {
         marker.setAnimation("Bloom"); marker.x = origin.x; marker.y = origin.y;
         marker.width = radius * 2; marker.height = radius * 2; marker.angle = 0; marker.isVisible = true;

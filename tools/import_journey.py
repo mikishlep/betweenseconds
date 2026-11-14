@@ -44,7 +44,10 @@ def main():
   p=ROOT/'objectTypes/TestEnemy.json';o=json.loads(p.read_text())
   with Image.open(mini) as im:
    for row,base in enumerate(['Bulwark','Viper','Shade']):
-    cells=[im.crop((round(c*im.width/8),round(row*im.height/3),round((c+1)*im.width/8),round((row+1)*im.height/3))) for c in range(8)]
+    # The Bulwark swing crosses the nominal column boundary into the recovery
+    # cell. Extract its complete source pose, excluding the neighbour's hammer.
+    bounds=[(0,256),(256,512),(512,768),(768,1024),(1024,1280),(1280,1549),(1549,1822),(1827,2048)] if row==0 else [(round(c*im.width/8),round((c+1)*im.width/8)) for c in range(8)]
+    cells=[im.crop((round(left*im.width/2048) if row==0 else left,round(row*im.height/3),round(right*im.width/2048) if row==0 else right,round((row+1)*im.height/3))) for left,right in bounds]
     boxes=[c.getchannel('A').point(lambda x:255 if x>128 else 0).getbbox() for c in cells];assert all(boxes)
     box=(min(b[0] for b in boxes),min(b[1] for b in boxes),max(b[2] for b in boxes),max(b[3] for b in boxes))
     frames=[]

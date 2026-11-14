@@ -4,9 +4,10 @@ export class HeroAnimator {
     private attackElapsed = -1;
     private motionElapsed = 0;
     private attackQueued = false;
+    private queuedDirection: string | null = null;
     private animation = "";
     constructor(private readonly runtime: IRuntime) {}
-    requestAttack(): void { this.attackQueued = true; }
+    requestAttack(angle?: number): void { this.attackQueued = true; this.queuedDirection = angle === undefined ? null : Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle)) ? (Math.cos(angle)>0?"Right":"Left") : (Math.sin(angle)>0?"Down":"Up"); }
     update(playing: boolean, moving = false): void {
         const player = this.runtime.objects.Player.getFirstInstance()!;
         const visual = this.runtime.objects.HeroVisual.getFirstInstance()!;
@@ -25,7 +26,8 @@ export class HeroAnimator {
         }
         if (this.attackQueued && this.attackElapsed < 0) {
             this.attackElapsed = 0;
-            this.attackDirection = this.direction;
+            this.attackDirection = this.queuedDirection ?? this.direction;
+            this.queuedDirection = null;
         }
         this.attackQueued = false;
         const attacking = this.attackElapsed >= 0;

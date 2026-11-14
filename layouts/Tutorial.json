@@ -465,7 +465,7 @@
 					"type": "TimeFragment",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Animation 1",
+						"initial-animation": "Memory",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -481,7 +481,7 @@
 					"world": {
 						"x": 420,
 						"y": 270,
-						"width": 24,
+						"width": 18,
 						"height": 24,
 						"originX": 0.5,
 						"originY": 0.5,
@@ -499,7 +499,7 @@
 					"type": "TimeFragment",
 					"properties": {
 						"initially-visible": true,
-						"initial-animation": "Animation 1",
+						"initial-animation": "Memory",
 						"initial-frame": 0,
 						"enable-collisions": true,
 						"live-preview": false
@@ -515,7 +515,7 @@
 					"world": {
 						"x": 900,
 						"y": 540,
-						"width": 24,
+						"width": 18,
 						"height": 24,
 						"originX": 0.5,
 						"originY": 0.5,
@@ -532,7 +532,7 @@
 				{
 					"type": "Exit",
 					"properties": {
-						"initially-visible": true,
+						"initially-visible": false,
 						"initial-animation": "Core",
 						"initial-frame": 0,
 						"enable-collisions": true,

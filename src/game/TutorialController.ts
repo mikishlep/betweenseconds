@@ -21,11 +21,10 @@ export class TutorialController {
     combatHint(attacks: number, pulses: number, enemies: number, fragments: number): void {
         if (this.step !== 3) return;
         const text = this.runtime.objects.TutorialText4.getFirstInstance();
-        if (text) text.text = attacks === 0 ? "ЛКМ — удар в сторону взгляда\nАтака запускает время. Подойди и ударь врага."
+        if (text) text.text = attacks === 0 ? "ЛКМ — атака в сторону курсора\nАтака запускает время. Дальность зависит от оружия."
             : pulses === 0 ? "E — временной импульс\nСбивает пули вокруг тебя. Победа вернёт заряд."
             : enemies > 0 ? "Победи оставшихся врагов\nОстановись, оцени угрозу и выбери момент."
-            : fragments < 2 ? "Собери два голубых фрагмента\nЗатем войди в светящуюся арку справа."
-            : "Выход открыт\nДойди до светящейся арки справа.";
+            : "Путь открыт — пройди через арку справа\nМаленькие часы на полу — необязательная валюта.";
     }
     private show(playing = true): void {
         TEXTS.forEach((name, index) => {

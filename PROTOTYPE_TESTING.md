@@ -1,6 +1,6 @@
-# Prototype 5 / Journey
+# Prototype 6 / Distinct Combat
 
-Current results: 70 tests; see [JOURNEY_TESTING.md](JOURNEY_TESTING.md). The report below is historical.
+Актуальные результаты: 82 автоматических теста, [COMBAT_IDENTITY_TESTING.md](COMBAT_IDENTITY_TESTING.md). Ниже — история, её старые описания не относятся к текущей сборке.
 
 # Between Seconds — проверка прототипов
 

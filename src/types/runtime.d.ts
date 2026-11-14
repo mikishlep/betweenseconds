@@ -28,9 +28,9 @@ interface IRuntime {
  HowToControl: ObjectType<Hud> };
  keyboard: { isKeyDown(code: string): boolean };
  dtRaw: number; timeScale: number;
- layout: { name: string };
+ layout: { name: string; getLayer?(name:string): {cssPxToLayer(x:number,y:number):[number,number]}; };
  goToLayout(name: string): void;
- addEventListener(name: "pointerdown", callback: (event: { button: number; target?: EventTarget | null }) => void): void;
+ addEventListener(name: "pointerdown", callback: (event: { button: number; clientX?:number; clientY?:number; target?: EventTarget | null }) => void): void;
  addEventListener(name: string, callback: () => void): void;
 }
 declare function runOnStartup(callback: (runtime: IRuntime) => void): void;

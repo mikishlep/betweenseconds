@@ -1,3 +1,5 @@
+> Исторический отчёт Prototype 5. Актуальные результаты Prototype 6 — в [COMBAT_IDENTITY_TESTING.md](COMBAT_IDENTITY_TESTING.md).
+
 # Prototype 5 / Journey — 14 ноября 2026
 
 ## Проверено автоматически

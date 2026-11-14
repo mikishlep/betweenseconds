@@ -1,14 +1,16 @@
 export class Menu {
-    page: "playing" | "title" | "pause" | "settings" | "exit" | "map";
+    page: "playing" | "title" | "pause" | "settings" | "exit" | "map" | "loadout" | "arsenal" | "reward" | "route";
     private back: "title" | "pause" = "title";
     notice = "";
     flashes = true;
     guides = true;
     constructor(page: "playing" | "title" = "playing") { this.page = page; }
     get playing(): boolean { return this.page === "playing"; }
-    escape(): void { if (this.page === "playing") this.page = "pause"; else if (this.page === "pause") this.page = "playing"; else if (this.page === "settings") this.page = this.back; else if(this.page === "map")this.page="playing"; }
+    escape(): void { if (this.page === "playing") this.page = "pause"; else if (this.page === "pause") this.page = "playing"; else if (this.page === "settings") this.page = this.back; else if(this.page === "map"||this.page === "arsenal")this.page="playing"; else if(this.page === "loadout")this.page="title"; else if(this.page === "route")this.page="pause"; }
     handle(id: string): void {
-        if (id === "start" || id === "resume" || id === "close-map") this.page = "playing";
+        if(id === "start")this.page="loadout";
+        else if (id === "resume" || id === "close-map" || id === "close-arsenal") this.page = "playing";
+        else if(id === "cancel-loadout")this.page="title";
         else if (id === "settings") { this.back = this.page === "pause" ? "pause" : "title"; this.page = "settings"; }
         else if (id === "back") this.page = this.back;
         else if (id === "quit") this.page = "exit";

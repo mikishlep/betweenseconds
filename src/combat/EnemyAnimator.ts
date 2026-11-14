@@ -4,13 +4,14 @@ export class EnemyAnimator {
     private elapsed = 0;
     private x: number | null = null;
     private y = 0;
-    update(sprite: Sprite, kind: string, dt: number, moving: boolean, windup: boolean, recovery: number, angle: number): void {
+    update(sprite: Sprite, kind: string, dt: number, moving: boolean, windup: boolean, recovery: number, angle: number, phase = 1): void {
         if (dt <= 0 && this.name) return;
         moving ||= dt > 0 && this.x !== null && Math.hypot(sprite.x - this.x, sprite.y - this.y) > .01;
         this.x = sprite.x; this.y = sprite.y;
         const base = kind === "bulwark" ? "Bulwark" : kind === "viper" ? "Viper" : kind === "shade" ? "Shade" : kind === "warden" ? "Warden" : kind === "echo" ? "Echo" : kind === "regent" ? "Regent" : kind === "hunter" ? "Hunter" : "Shooter";
         const pose = recovery > 0 ? "Attack" : windup ? "Windup" : moving ? "Walk" : "Idle";
-        const name = base + pose;
+        const form = ["warden","echo","regent"].includes(kind) && phase > 1 ? String(phase) : "";
+        const name = base + form + pose;
         if (name !== this.name) { sprite.setAnimation(name); this.name = name; this.elapsed = 0; }
         else this.elapsed += dt;
         sprite.animationSpeed = 0;

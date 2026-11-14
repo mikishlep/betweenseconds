@@ -25,6 +25,10 @@ runOnStartup(runtime => {
     runtime.addEventListener("tick", () => game?.tick());
     runtime.addEventListener("pointerdown", event => {
         if (typeof Element !== "undefined" && event.target instanceof Element && event.target.closest("button")) return;
-        if (event.button === 0) game?.attack();
+        if (event.button === 0) {
+            const layer=runtime.layout.getLayer?.("scene");
+            const point=layer && event.clientX!==undefined && event.clientY!==undefined ? layer.cssPxToLayer(event.clientX,event.clientY) : null;
+            game?.attack(point?{x:point[0],y:point[1]}:undefined);
+        }
     });
 });

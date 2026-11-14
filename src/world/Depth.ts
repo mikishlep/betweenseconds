@@ -18,7 +18,7 @@ export class Depth {
         sprite.width = width; sprite.height = height; sprite.opacity = 0.5;
         return sprite;
     }
-    update(): void {
+    update(held?:Sprite): void {
         const player = this.runtime.objects.Player.getFirstInstance()!;
         const hero = this.runtime.objects.HeroVisual.getFirstInstance()!;
         const enemies = this.runtime.objects.TestEnemy.getAllInstances(), alive = new Set(enemies);
@@ -35,7 +35,8 @@ export class Depth {
             ...enemies.map(sprite => ({ sprite, foot: sprite.y + 14 })),
             ...this.runtime.objects.Wall.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.faces.map(({ wall, face }) => ({ sprite: face, foot: wall.y + wall.height / 2 + 1 })),
-            ...(this.runtime.objects.WorldProp?.getAllInstances() ?? []).map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
+            ...(this.runtime.objects.WorldProp?.getAllInstances() ?? []).filter(sprite=>sprite!==held).map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
+            ...(held?[{sprite:held,foot:player.y+14+(Math.sin(held.angle)<-.2?-1:1)}]:[]),
             ...this.runtime.objects.Exit.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.TimeFragment.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height / 2 })),
             ...this.runtime.objects.CombatFx.getAllInstances().map(sprite => ({ sprite, foot: sprite.y + sprite.height * 0.2 }))];
