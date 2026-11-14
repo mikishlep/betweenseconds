@@ -1,0 +1,38 @@
+{
+  "tool": "built-in image_gen",
+  "mode": "identity-preserve",
+  "sourceReferences": [
+    "атака_анфас.png",
+    "атака_зад.png",
+    "атака_лево.png",
+    "атака_право.png"
+  ],
+  "prompts": {
+    "v1": "Use case: identity-preserve. Asset type: production pixel-art spritesheet for the existing Between Seconds hero. Input images 1-4 are strict identity/style references: image 1 front/Down attack, image 2 back/Up attack, image 3 Left attack, image 4 Right attack. Create ONLY new idle and walking frames of precisely this same tiny character, not a redesign. Preserve blank white rounded-square head with NO eyes, NO face, NO hair; small white body and white legs; dark burgundy cape/coat; small gray-blue sword held at rest; near-black pixel outlines. Keep exact reference proportions and very sparse original palette, 1-pixel stepped outlines, no shading embellishments. Transparent background, no text, no labels, no dividers, no floor/shadow, no attack swooshes. One clean regular 8-column by 4-row atlas. Canvas 1024x512, each grid cell exactly128x128, representing a64x64 sprite at integer2x pixel scale. Uniform margins and fixed body/head anchor in every cell; full body and sword always inside each cell. Character head center at x64 within each cell, top of head y22, feet around y92. ROW 1 all face DOWN/front, ROW 2 all face UP/back, ROW 3 all face LEFT, ROW 4 all face RIGHT. In EVERY row columns1-4 are a subtle4-frame IDLE breathing loop: identical head and restrained1-pixel body/cape breathing. Columns5-8 are a readable4-frame WALK loop: left step, passing, right step, passing, with small cape sway and alternating feet. Do not change head size or add details across frames. Keep the SAME character and silhouette as the supplied images, especially the totally blank square white head. No character variation. Exact equal cells, exactly32 sprites. This atlas will be sliced mechanically by its grid; no trimming or irregular placement.",
+    "v2": "Edit target: Image 1, the 8x4 transparent spritesheet. Images 2-5 are STRICT pixel-art identity references, not loose inspiration: 2 Down/front, 3 Up/back, 4 Left, 5 Right. Keep the exact regular8-column4-row layout and transparent background of image1. Correct the character in EVERY cell to match the original reference hero much more literally. The references have a small SQUARE white blank head, squat tiny proportions and very sparse flat pixels. Remove the enlarged/elongated head, new collar/scarf details, shaded gray speckling, glossy rendering and antialiased halos introduced in image1. Head must be a17x17-pixel rounded square on a64x64 logical frame. Character native silhouette should span roughly x22..42 and y10..46 of each64x64 frame, with sword/cape extending only where appropriate. Head top y10, face entirely white, no eyes/no mouth/no hair. White body and legs, dark wine-burgundy cape, small plain grayblue sword, thin near-black pixel outline. EXACT original silhouette, color blocks and detail budget. Treat this as a pixel editor extension of the provided sprites, not a character illustration. Preserve original outfit/cape orientation: front row shows white torso, back row shows burgundy cape over torso. Left and Right rows must genuinely face opposite lateral directions: on Left row body/sword stance face left, on Right face right, matching images4 and5. No slanted/perspective head, no extra armor, no highlight strokes outside outline. Each row first4 columns IDLE subtle one-pixel breathing only, last4 columns WALK left step/passing/right step/passing. Keep head dimensions and body center consistent across frames. Keep character centered in every cell with identical head/body anchor. No text or labels or dividers. Strict crisp pixel art, flat original palette, no new props, no attacks/swooshes. Keep all32 frames and true alpha transparency."
+  },
+  "selected": "hero-locomotion-v2.png",
+  "grid": {
+    "columns": 8,
+    "rows": 4,
+    "directions": [
+      "Down",
+      "Up",
+      "Left",
+      "Right"
+    ],
+    "idleColumns": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "walkColumns": [
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "notes": "AI-assisted extension, not original designer frames. Original attack strips and original Idle animations preserved. Import only slices/resizes cells with nearest-neighbor and aligns head anchors via Construct origin metadata."
+}

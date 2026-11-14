@@ -1,7 +1,6 @@
 """Losslessly split the designer's four 5x64x64 strips into Construct frames."""
 import copy
 import json
-import shutil
 from pathlib import Path
 from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +22,9 @@ def main():
                     animation['frames'].append(frame)
                     image.crop((index*64,0,(index+1)*64,64)).save(ROOT/'images'/f'herovisual-{kind.lower()}{direction.lower()}-{index:03}.png')
                 animations.append(animation)
+    existing = ROOT/'objectTypes/HeroVisual.json'
+    if existing.exists():
+        animations += [a for a in json.loads(existing.read_text())['animations']['items'] if a['name'].startswith(('Breathe', 'Walk'))]
     visual = {'name':'HeroVisual','plugin-id':'Sprite','sid':820000000000100,'isGlobal':False,'editorNewInstanceIsReplica':True,'instanceVariables':[],'behaviorTypes':[],'effectTypes':[],'animations':{'items':animations,'subfolders':[]}}
     (ROOT/'objectTypes/HeroVisual.json').write_text(json.dumps(visual,ensure_ascii=False,indent='\t')+'\n')
 if __name__ == '__main__':

@@ -86,7 +86,7 @@ test('R reloads from frozen, won and lost; holding R does not reload twice',()=>
  for(const status of ['playing','won','lost']){const f=fixture(),g=new GameController(f.runtime);g.state.status=status;f.keys.add('KeyR');g.beforeTick();g.tick();g.beforeTick();assert.equal(f.calls.filter(c=>c==='Макет 1').length,1);}
 });
 test('compiled entry registers one listener pair, creates fresh game on every reload',()=>{
- const f=fixture(),listeners={};f.runtime.addEventListener=(n,cb)=>(listeners[n]??=[]).push(cb);
+ const f=fixture(),listeners={};f.runtime.layout.name='Tutorial';f.runtime.addEventListener=(n,cb)=>(listeners[n]??=[]).push(cb);
  vm.runInNewContext(esbuild.transformSync(fs.readFileSync('scripts/main.js','utf8'),{format:'cjs'}).code,{module:{exports:{}},exports:{},runOnStartup:cb=>cb(f.runtime)});
  for(let i=0;i<4;i++){listeners.beforeanylayoutstart[0]();listeners.pretick[0]();listeners.tick[0]();}
  assert.equal(listeners.pretick.length,1);assert.equal(listeners.tick.length,1);assert.match(f.runtime.objects.HowToControl.getFirstInstance().htmlContent,/Здоровье 3 из 3/);
@@ -165,17 +165,17 @@ test('Enter cannot skip an unfinished tutorial and R creates a fresh tutorial',(
 });
 test('hero faces four directions, plays five attack frames and keeps collider size',()=>{
  const f=fixture(),h=new HeroAnimator(f.runtime),visual=f.runtime.objects.HeroVisual.getFirstInstance();
- for(const [key,dir] of [['KeyW','Up'],['KeyD','Right'],['KeyA','Left'],['KeyS','Down']]){f.keys.clear();f.keys.add(key);h.update(true);assert.equal(visual.animationName,'Idle'+dir);}
+ for(const [key,dir] of [['KeyW','Up'],['KeyD','Right'],['KeyA','Left'],['KeyS','Down']]){f.keys.clear();f.keys.add(key);h.update(true);assert.equal(visual.animationName,'Breathe'+dir);}
  h.requestAttack();h.update(true);assert.equal(visual.animationName,'AttackDown');assert.equal(visual.animationFrame,0);
  const frames=new Set([0]);for(let i=0;i<32;i++){h.update(true);frames.add(visual.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3,4]);
- h.update(true);assert.equal(visual.animationName,'IdleDown');assert.equal(f.p.width,28);assert.equal(f.p.height,28);assert.equal(f.p.isVisible,false);
+ h.update(true);assert.equal(visual.animationName,'BreatheDown');assert.equal(f.p.width,28);assert.equal(f.p.height,28);assert.equal(f.p.isVisible,false);
 });
 test('hero attack preview runs during world pause but freezes on terminal screen',()=>{
  const f=fixture(),h=new HeroAnimator(f.runtime),v=f.runtime.objects.HeroVisual.getFirstInstance();f.runtime.timeScale=0;h.requestAttack();h.update(true);
  for(let i=0;i<7;i++)h.update(true);assert.ok(v.animationFrame>0);const frame=v.animationFrame;for(let i=0;i<60;i++)h.update(false);assert.equal(v.animationFrame,frame);
 });
 test('compiled entry safely ignores a layout without gameplay instances',()=>{
- const listeners={},empty={getFirstInstance:()=>null,getAllInstances:()=>[]};const runtime={objects:new Proxy({},{get:()=>empty}),addEventListener:(n,cb)=>listeners[n]=cb};
+ const listeners={},empty={getFirstInstance:()=>null,getAllInstances:()=>[]};const runtime={layout:{name:'Tutorial'},objects:new Proxy({},{get:()=>empty}),addEventListener:(n,cb)=>listeners[n]=cb};
  vm.runInNewContext(esbuild.transformSync(fs.readFileSync('scripts/main.js','utf8'),{format:'cjs'}).code,{module:{exports:{}},exports:{},runOnStartup:cb=>cb(runtime)});
  assert.doesNotThrow(()=>{listeners.beforeanylayoutstart();listeners.pretick();listeners.tick();});
 });
@@ -189,10 +189,44 @@ test('both playable layouts have consistent hero/logic instances, unique IDs and
 });
 
 test('left click triggers one attack, right click does not, handlers stay single across restarts',()=>{
- const f=fixture(),listeners={};f.runtime.addEventListener=(n,cb)=>(listeners[n]??=[]).push(cb);
+ const f=fixture(),listeners={};f.runtime.layout.name='Tutorial';f.runtime.addEventListener=(n,cb)=>(listeners[n]??=[]).push(cb);
  vm.runInNewContext(esbuild.transformSync(fs.readFileSync('scripts/main.js','utf8'),{format:'cjs'}).code,{module:{exports:{}},exports:{},runOnStartup:cb=>cb(f.runtime)});
  for(let i=0;i<5;i++)listeners.beforeanylayoutstart[0]();assert.equal(listeners.pointerdown.length,1);
- const v=f.runtime.objects.HeroVisual.getFirstInstance();listeners.pointerdown[0]({button:2});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'IdleDown');
+ const v=f.runtime.objects.HeroVisual.getFirstInstance();listeners.pointerdown[0]({button:2});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'BreatheDown');
  listeners.pointerdown[0]({button:0});listeners.pretick[0]();listeners.tick[0]();assert.equal(v.animationName,'AttackDown');
- for(let i=0;i<35;i++){listeners.pretick[0]();listeners.tick[0]();}assert.equal(v.animationName,'IdleDown');
+ for(let i=0;i<35;i++){listeners.pretick[0]();listeners.tick[0]();}assert.equal(v.animationName,'BreatheDown');
+});
+
+test('fresh preview of the arena always routes to Tutorial once, then allows the arena',()=>{
+ const f=fixture(),listeners={};f.runtime.addEventListener=(n,cb)=>listeners[n]=cb;
+ vm.runInNewContext(esbuild.transformSync(fs.readFileSync('scripts/main.js','utf8'),{format:'cjs'}).code,{module:{exports:{}},exports:{},runOnStartup:cb=>cb(f.runtime)});
+ listeners.beforeanylayoutstart();assert.deepEqual(f.calls,['Tutorial']);listeners.pretick();listeners.tick();
+ f.runtime.layout.name='Tutorial';listeners.beforeanylayoutstart();listeners.pretick();listeners.tick();
+ f.runtime.layout.name='Макет 1';listeners.beforeanylayoutstart();listeners.pretick();listeners.tick();
+ assert.equal(f.calls.filter(x=>x==='Tutorial').length,1);
+});
+test('H opens Tutorial from playing, won or lost arena, once per press',()=>{
+ for(const status of ['playing','won','lost']){const f=fixture(),g=new GameController(f.runtime);g.state.status=status;f.keys.add('KeyH');g.beforeTick();g.beforeTick();assert.equal(f.calls.filter(x=>x==='Tutorial').length,1);}
+});
+test('hero switches Idle/Walk on actual motion, cycles all frames, and freezes the current pose at terminal',()=>{
+ const f=fixture(),h=new HeroAnimator(f.runtime),v=f.runtime.objects.HeroVisual.getFirstInstance();
+ for(const [key,dir] of [['KeyW','Up'],['KeyD','Right'],['KeyA','Left'],['KeyS','Down']]){
+  f.keys.clear();f.keys.add(key);h.update(true,true);assert.equal(v.animationName,'Walk'+dir);
+  const frames=new Set();for(let i=0;i<35;i++){h.update(true,true);frames.add(v.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3]);
+  h.update(true,false);assert.equal(v.animationName,'Breathe'+dir);
+ }
+ const frames=new Set();for(let i=0;i<75;i++){h.update(true,false);frames.add(v.animationFrame);}assert.deepEqual([...frames].sort(),[0,1,2,3]);
+ const pose=[v.animationName,v.animationFrame];for(let i=0;i<60;i++)h.update(false);assert.deepEqual([v.animationName,v.animationFrame],pose);
+});
+
+test('generated locomotion is separate from original art, with complete four-frame loops and valid origins',()=>{
+ const object=JSON.parse(fs.readFileSync('objectTypes/HeroVisual.json'));
+ for(const direction of ['Up','Down','Left','Right']){
+  assert.equal(object.animations.items.find(a=>a.name==='Attack'+direction).frames.length,5);
+  assert.equal(object.animations.items.find(a=>a.name==='Idle'+direction).frames.length,1);
+  for(const kind of ['Breathe','Walk']){
+   const anim=object.animations.items.find(a=>a.name===kind+direction);assert.equal(anim.frames.length,4);assert.equal(anim.isLooping,true);
+   for(const f of anim.frames){assert.equal(f.width,64);assert.equal(f.height,64);assert.ok(f.originX>0&&f.originX<1);assert.ok(f.originY>0&&f.originY<1);}
+  }
+ }
 });

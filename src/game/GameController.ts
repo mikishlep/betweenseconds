@@ -15,6 +15,7 @@ export class GameController {
     private readonly tutorial: TutorialController | null;
     private readonly hero: HeroAnimator;
     private enterWasDown: boolean;
+    private helpWasDown: boolean;
     private restartWasDown: boolean;
     private restarting = false;
     constructor(private readonly runtime: IRuntime) {
@@ -24,6 +25,7 @@ export class GameController {
         this.time = new TimeController(runtime);
         this.combat = new CombatSystem(runtime, this.state);
         this.hud = new HudController(runtime);
+        this.helpWasDown = runtime.keyboard.isKeyDown("KeyH");
         this.enterWasDown = runtime.keyboard.isKeyDown("Enter");
         this.restartWasDown = runtime.keyboard.isKeyDown("KeyR");
         runtime.objects.Exit.getFirstInstance()!.opacity = 0.32;
@@ -35,13 +37,16 @@ export class GameController {
     }
     beforeTick(): void {
         const down = this.runtime.keyboard.isKeyDown("KeyR");
+        const help = this.runtime.keyboard.isKeyDown("KeyH");
+        const openTutorial = !this.tutorial && help && !this.helpWasDown;
+        this.helpWasDown = help;
         const enter = this.runtime.keyboard.isKeyDown("Enter");
         const advance = this.tutorial && this.state.status === "won" && enter && !this.enterWasDown;
         this.enterWasDown = enter;
-        if ((down && !this.restartWasDown) || advance) {
+        if ((down && !this.restartWasDown) || advance || openTutorial) {
             this.restarting = true;
             this.runtime.timeScale = 1;
-            this.runtime.goToLayout(advance ? "Макет 1" : this.runtime.layout.name);
+            this.runtime.goToLayout(openTutorial ? "Tutorial" : advance ? "Макет 1" : this.runtime.layout.name);
         }
         this.restartWasDown = down;
         this.time.beforeTick(this.state.status === "playing" && !this.restarting);
@@ -73,7 +78,7 @@ export class GameController {
             this.runtime.objects.TestEnemy.getFirstInstance()!.timeScale = 0;
         }
         player.opacity = this.state.invulnerable > 0 ? 0.55 : 1;
-        this.hero.update(this.state.status === "playing");
+        this.hero.update(this.state.status === "playing", dt > 0);
         this.hud.update(this.state, dt > 0 && this.state.status === "playing", this.player.ready);
     }
 }
